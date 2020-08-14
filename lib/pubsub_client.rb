@@ -9,12 +9,15 @@ module PubsubClient
   Config = Struct.new(:topic_name)
 
   class << self
-    def config
-      @config ||= Config.new
-    end
-
     def configure(&block)
+      config = Config.new
       yield config
+
+      unless config.topic_name
+        raise ConfigurationError, 'The topic_name must be configured.'
+      end
+
+      @publisher_factory = PublisherFactory.new(config.topic_name)
     end
 
     def publish(message, &block)
@@ -22,11 +25,11 @@ module PubsubClient
         raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set.'
       end
 
-      unless config.topic_name
-        raise ConfigurationError, 'The topic_name must be configured.'
+      unless @publisher_factory
+        raise ConfigurationError, 'PubsubClient.configure must be called'
       end
 
-      PublisherFactory.build(config.topic_name).publish(message, &block)
+      @publisher_factory.build.publish(message, &block)
     end
   end
 end
