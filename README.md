@@ -23,7 +23,7 @@ Or install it yourself as:
 In order to use this gem, the environment variable `GOOGLE_APPLICATION_CREDENTIALS` must be set and point to the credentials JSON file. Additionally, here are configuration settings that may need to be set:
 - `topic_name` (required unless stubbed) - name of the Google Cloud Pub/Sub topic to publish messages to.
 
-If there are environments where setting up credentials is too burdensome and/or publsihing events to the infrastructure is not desired, `PubsubClient` can be stubbed out with `PubsubClient.stub!`
+If there are environments where setting up credentials is too burdensome and/or publishing messages is not desired, `PubsubClient` can be stubbed out with `PubsubClient.stub!`
 
 E.g.
 
