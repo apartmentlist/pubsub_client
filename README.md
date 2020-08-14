@@ -1,8 +1,6 @@
 # PubsubClient
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pubsub_client`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This is a wrapper around the `google-cloud-pubsub` gem. There are times when it is useful to stub out these resources while in development or test environment. This will allow clients to do just that. Additionally, this gem also handles proper memoization of these resources even in forked and/or multi-threaded environments.
 
 ## Installation
 
@@ -20,9 +18,39 @@ Or install it yourself as:
 
     $ gem install pubsub_client
 
+## Configuration
+
+In order to use this gem, the environment variable `GOOGLE_APPLICATION_CREDENTIALS` must be set and point to the credentials JSON file. Additionally, here are configuration settings that may need to be set:
+- `topic_name` (required unless stubbed) - name of the Google Cloud Pub/Sub topic to publish messages to.
+
+If there are environments where setting up credentials is too burdensome and/or publsihing events to the infrastructure is not desired, `PubsubClient` can be stubbed out with `PubsubClient.stub!`
+
+E.g.
+
+```ruby
+if test_env?
+  PubsubClient.stub!
+else
+  PubsubClient.configure do |config|
+    config.topic_name = 'some-topic'
+  end
+end
+```
+
 ## Usage
 
-TODO: Write usage instructions here
+To publish messages, call
+
+```ruby
+result = PubsubClient.publish(message) # `message` is any serializable object
+if result.succeeded?
+  puts 'yay!'
+else
+  puts result.error
+end
+```
+
+The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
 
 ## Development
 
