@@ -1,5 +1,5 @@
 require 'pubsub_client/version'
-require 'google/cloud/pubsub'
+require 'pubsub_client/publisher_factory'
 
 module PubsubClient
   Error = Class.new(StandardError)
@@ -26,9 +26,7 @@ module PubsubClient
         raise ConfigurationError, 'The topic_name must be configured.'
       end
 
-      pubsub = Google::Cloud::PubSub.new
-      topic = pubsub.topic(config.topic_name)
-      topic.publish_async(message, &block)
+      PublisherFactory.build(config.topic_name).publish(message, &block)
     end
   end
 end

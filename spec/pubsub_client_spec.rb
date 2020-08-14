@@ -1,18 +1,12 @@
+# frozen_string_literal: true
+
 RSpec.describe PubsubClient do
-  let(:pubsub) { instance_double(Google::Cloud::PubSub::Project) }
-  let(:topic) { instance_double(Google::Cloud::PubSub::Topic) }
+  let(:publisher) { instance_double(PubsubClient::Publisher, publish: nil) }
 
   before do
-    allow(Google::Cloud::PubSub)
-      .to receive(:new)
-      .and_return(pubsub)
-    allow(pubsub)
-      .to receive(:topic)
-      .with('the-topic') # the topic name is configured in spec_helper.rb
-      .and_return(topic)
-    allow(topic)
-      .to receive(:publish_async)
-      .and_yield('the-result')
+    allow(PubsubClient::PublisherFactory)
+      .to receive(:build)
+      .and_return(publisher)
   end
 
   context 'when no credentials are set' do
@@ -49,17 +43,8 @@ RSpec.describe PubsubClient do
     end
   end
 
-  it 'publishes the message asynchronously' do
+  it 'calls publish on the publisher' do
     described_class.publish('foo') { |_| }
-    expect(topic).to have_received(:publish_async)
-      .with('foo')
-  end
-
-  it 'yields the result to a block' do
-    yielded_result = nil
-    described_class.publish('foo') do |result|
-      yielded_result = result
-    end
-    expect(yielded_result).to eq('the-result')
+    expect(publisher).to have_received(:publish)
   end
 end
