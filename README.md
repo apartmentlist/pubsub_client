@@ -39,15 +39,16 @@ end
 
 ## Usage
 
-To publish a message to Pub/Sub, call `PubsubClient.publish(message)`. This method takes any serializable object as an argument and returns a result object. The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
+To publish a message to Pub/Sub, call `PubsubClient.publish(message)`. This method takes any serializable object as an argument and yields a result object to a block. The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
 
 ### Example
 ```ruby
-result = PubsubClient.publish(message)
-if result.succeeded?
-  puts 'yay!'
-else
-  puts result.error
+PubsubClient.publish(message) do |result|
+  if result.succeeded?
+    puts 'yay!'
+  else
+    puts result.error
+  end
 end
 ```
 
