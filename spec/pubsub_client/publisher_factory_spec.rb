@@ -14,7 +14,7 @@ module PubsubClient
         .and_return(pubsub)
       allow(pubsub)
         .to receive(:topic)
-        .with('the-topic') # the topic name is configured in spec_helper.rb
+        .with('the-topic')
         .and_return(topic)
       allow(Publisher)
         .to receive(:new)
