@@ -6,7 +6,12 @@ module PubsubClient
 
     let(:pubsub) { instance_double(Google::Cloud::PubSub::Project) }
     let(:topic) { instance_double(Google::Cloud::PubSub::Topic) }
-    let(:publisher) { instance_double(Publisher) }
+    let(:publisher) do
+      # The factory ensures the #flush method of publisher is called on exit, so
+      # we cannot use doubles. Thus, created a lightweight object that will respond
+      # to #flush
+      Struct.new(:flush).new
+    end
 
     before do
       allow(Google::Cloud::PubSub)

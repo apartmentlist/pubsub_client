@@ -30,14 +30,8 @@ module PubsubClient
         # know that one will have built the publisher before the second is able to enter.
         # If we detect that case, then bail out so as to not rebuild the publisher.
         unless @publisher_pid == current_pid
-          pubsub = Google::Cloud::PubSub.new
-          topic = pubsub.topic(topic_name)
+          @publisher = build_publisher
           @publisher_pid = Process.pid
-          @publisher = Publisher.new(topic)
-
-          at_exit do
-            topic.async_publisher.stop.wait! if topic.async_publisher
-          end
         end
       end
 
@@ -52,6 +46,16 @@ module PubsubClient
     # this helps us test that the `.build` method creates different publishers.
     def current_pid
       Process.pid
+    end
+
+    def build_publisher
+      pubsub = Google::Cloud::PubSub.new
+      topic = pubsub.topic(topic_name)
+      publisher = Publisher.new(topic)
+
+      at_exit { publisher.flush }
+
+      publisher
     end
   end
 end

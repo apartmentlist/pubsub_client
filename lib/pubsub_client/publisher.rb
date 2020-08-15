@@ -12,7 +12,10 @@ module PubsubClient
       topic.publish_async(message, &block)
     end
 
-    private
+    def flush
+      return unless topic.async_publisher
+      topic.async_publisher.stop.wait!
+    end
 
     attr_reader :topic
   end

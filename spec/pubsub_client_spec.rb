@@ -8,6 +8,10 @@ RSpec.describe PubsubClient do
         .and_return('the-factory')
     end
 
+    after do
+      described_class.instance_variable_set(:@publisher_factory, nil)
+    end
+
     context 'when the topic name is not configured' do
       it 'raises an error' do
         expect do
@@ -29,7 +33,12 @@ RSpec.describe PubsubClient do
     let(:publisher) { instance_double(PubsubClient::Publisher, publish: nil) }
 
     before do
-      described_class.instance_variable_set(:@publisher_factory, instance_double(PubsubClient::PublisherFactory, build: publisher))
+      factory = instance_double(PubsubClient::PublisherFactory, build: publisher)
+      described_class.instance_variable_set(:@publisher_factory, factory)
+    end
+
+    after do
+      described_class.instance_variable_set(:@publisher_factory, nil)
     end
 
     context 'when no credentials are set' do
