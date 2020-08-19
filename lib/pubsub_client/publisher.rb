@@ -17,6 +17,8 @@ module PubsubClient
       topic.async_publisher.stop.wait!
     end
 
+    private
+
     attr_reader :topic
   end
 end
