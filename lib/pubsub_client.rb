@@ -1,4 +1,5 @@
 require 'pubsub_client/version'
+require 'pubsub_client/null_publisher_factory'
 require 'pubsub_client/publisher_factory'
 
 module PubsubClient
@@ -10,6 +11,12 @@ module PubsubClient
 
   class << self
     def configure(&block)
+      raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory
+
+      unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
+        raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set.'
+      end
+
       config = Config.new
       yield config
 
@@ -20,13 +27,14 @@ module PubsubClient
       @publisher_factory = PublisherFactory.new(config.topic_name)
     end
 
-    def publish(message, &block)
-      unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
-        raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set.'
-      end
+    def stub!
+      raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory
+      @publisher_factory = NullPublisherFactory.new
+    end
 
+    def publish(message, &block)
       unless @publisher_factory
-        raise ConfigurationError, 'PubsubClient.configure must be called'
+        raise ConfigurationError, 'PubsubClient must be configured or stubbed'
       end
 
       @publisher_factory.build.publish(message, &block)
