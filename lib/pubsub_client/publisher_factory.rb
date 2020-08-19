@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require_relative 'publisher'
+require_relative 'null_publisher'
 
 module PubsubClient
   # Build and memoize the Publisher, accounting for GRPC's requirements around forking.
   class PublisherFactory
-    def initialize(topic_name)
+    def initialize(topic_name, stubbed)
       @topic_name = topic_name
+      @stubbed = stubbed
       @mutex = Mutex.new
     end
 
@@ -40,7 +42,7 @@ module PubsubClient
 
     private
 
-    attr_reader :mutex, :topic_name
+    attr_reader :mutex, :stubbed, :topic_name
 
     # Used for testing to simulate when a process is forked. In those cases,
     # this helps us test that the `.build` method creates different publishers.
@@ -49,6 +51,8 @@ module PubsubClient
     end
 
     def build_publisher
+      return NullPublisher.new if stubbed
+
       pubsub = Google::Cloud::PubSub.new
       topic = pubsub.topic(topic_name)
       publisher = Publisher.new(topic)

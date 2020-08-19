@@ -3,8 +3,9 @@
 RSpec.describe PubsubClient do
   describe '.configure' do
     before do
+      described_class.stub!
       allow(PubsubClient::PublisherFactory).to receive(:new)
-        .with('the-topic')
+        .with('the-topic', true)
         .and_return('the-factory')
     end
 
@@ -15,7 +16,9 @@ RSpec.describe PubsubClient do
     context 'when the topic name is not configured' do
       it 'raises an error' do
         expect do
-          described_class.configure { |_| }
+          described_class.configure do |c|
+            c.topic_name = nil
+          end
         end.to raise_error(PubsubClient::ConfigurationError, 'The topic_name must be configured.')
       end
     end
