@@ -75,6 +75,20 @@ spec:
     - "tail"
     - "-f"
     - "/dev/null"
+  - name: ruby27
+    image: gcr.io/al-development/ruby:2.7.1
+    imagePullPolicy: Always
+    resources:
+      requests:
+        memory: "2048Mi"
+        cpu: "2"
+      requests:
+        memory: "2048Mi"
+        cpu: "2"
+    command:
+    - "tail"
+    - "-f"
+    - "/dev/null"
 """
     }
   }
@@ -90,10 +104,8 @@ spec:
         stage('PubsubClient gem ruby 2.5') {
           steps {
             container('ruby25') {
-              dir('clients/ruby') {
-                sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
-                sh script: 'bundle exec rake', label: 'test'
-              } //directory
+              sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
+              sh script: 'bundle exec rake', label: 'test'
             } //container
           } //steps
         }//stage
@@ -101,14 +113,20 @@ spec:
         stage('PubsubClient gem ruby 2.6') {
           steps {
             container('ruby26') {
-              dir('clients/ruby') {
-                sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
-                sh script: 'bundle exec rake', label: 'test'
-              } //directory
+              sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
+              sh script: 'bundle exec rake', label: 'test'
             } //container
           } //steps
         }//stage
 
+        stage('PubsubClient gem ruby 2.7') {
+          steps {
+            container('ruby27') {
+              sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
+              sh script: 'bundle exec rake', label: 'test'
+            } //container
+          } //steps
+        }//stage
       } //parallel
     } //stage
   }
