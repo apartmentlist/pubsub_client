@@ -32,18 +32,25 @@ if test_env?
   PubsubClient.stub!
 else
   PubsubClient.configure do |config|
-    config.topic_name = 'some-topic'
+    config.topic_names << ENV['MY_TOPIC']
+    config.topic_names << ENV['ANOTHER_TOPIC']
+
+
+    # Alternatively, assuming ENV['TOPICS'] = 'my-topic,another-topic'
+    #config.topic_names += ENV['TOPICS'].split(',')
   end
 end
 ```
 
+The `config.topic_names` is an array of topic names. It is set to an empty array by default. At least one topic must be configured otherwise an exception is thrown.
+
 ## Usage
 
-To publish a message to Pub/Sub, call `PubsubClient.publish(message)`. This method takes any serializable object as an argument and yields a result object to a block. The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
+To publish a message to Pub/Sub, call `PubsubClient.publish(message, 'the-topic')`. This method takes any serializable object as an argument and yields a result object to a block. The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
 
 ### Example
 ```ruby
-PubsubClient.publish(message) do |result|
+PubsubClient.publish(message, 'some-topic') do |result|
   if result.succeeded?
     puts 'yay!'
   else
@@ -51,6 +58,8 @@ PubsubClient.publish(message) do |result|
   end
 end
 ```
+
+**Note:** Attempting to publish to a topic that was not configured will throw an exception.
 
 ## Development
 
