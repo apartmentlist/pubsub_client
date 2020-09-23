@@ -2,7 +2,7 @@
 
 module PubsubClient
   RSpec.describe PublisherFactory do
-    subject(:factory) { described_class.new('the-topic') }
+    subject(:factory) { described_class.new(['the-topic']) }
 
     let(:pubsub) { instance_double(Google::Cloud::PubSub::Project) }
     let(:topic) { instance_double(Google::Cloud::PubSub::Topic) }
@@ -61,7 +61,7 @@ module PubsubClient
     end
 
     it 'returns the publisher' do
-      expect(factory.build).to eq(publisher)
+      expect(factory.build).to eq({ 'the-topic' => publisher })
     end
   end
 end

@@ -7,7 +7,11 @@ module PubsubClient
   CredentialsError = Class.new(Error)
   ConfigurationError = Class.new(Error)
 
-  Config = Struct.new(:topic_name)
+  Config = Struct.new(:topic_names) do
+    def initialize(topic_names: [])
+      super(topic_names)
+    end
+  end
 
   class << self
     def configure(&block)
@@ -20,11 +24,14 @@ module PubsubClient
       config = Config.new
       yield config
 
-      unless config.topic_name
-        raise ConfigurationError, 'The topic_name must be configured.'
+      # We remove any nil values
+      config.topic_names.compact!
+
+      unless config.topic_names.any?
+        raise ConfigurationError, 'At least one topic must be configured'
       end
 
-      @publisher_factory = PublisherFactory.new(config.topic_name)
+      @publisher_factory = PublisherFactory.new(config.topic_names)
     end
 
     def stub!
@@ -32,12 +39,12 @@ module PubsubClient
       @publisher_factory = NullPublisherFactory.new
     end
 
-    def publish(message, &block)
+    def publish(message, topic, &block)
       unless @publisher_factory
         raise ConfigurationError, 'PubsubClient must be configured or stubbed'
       end
 
-      @publisher_factory.build.publish(message, &block)
+      @publisher_factory.build[topic].publish(message, &block)
     end
   end
 end

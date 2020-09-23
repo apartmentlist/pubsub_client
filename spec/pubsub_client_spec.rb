@@ -4,7 +4,7 @@ RSpec.describe PubsubClient do
   describe '.configure' do
     before do
       allow(PubsubClient::PublisherFactory).to receive(:new)
-        .with('the-topic')
+        .with(['the-topic'])
         .and_return('the-factory')
     end
 
@@ -30,17 +30,17 @@ RSpec.describe PubsubClient do
       end
     end
 
-    context 'when the topic name is not configured' do
+    context 'when no topics are configured' do
       it 'raises an error' do
         expect do
           described_class.configure { |_| }
-        end.to raise_error(PubsubClient::ConfigurationError, 'The topic_name must be configured.')
+        end.to raise_error(PubsubClient::ConfigurationError, 'At least one topic must be configured')
       end
     end
 
     it 'sets the publisher factory' do
       described_class.configure do |c|
-        c.topic_name = 'the-topic'
+        c.topic_names << 'the-topic'
       end
       expect(described_class.instance_variable_get(:@publisher_factory))
         .to eq('the-factory')
@@ -81,7 +81,7 @@ RSpec.describe PubsubClient do
     let(:publisher) { instance_double(PubsubClient::Publisher, publish: nil) }
 
     before do
-      factory = instance_double(PubsubClient::PublisherFactory, build: publisher)
+      factory = instance_double(PubsubClient::PublisherFactory, build: { 'the-topic' => publisher })
       described_class.instance_variable_set(:@publisher_factory, factory)
     end
 
@@ -90,7 +90,7 @@ RSpec.describe PubsubClient do
     end
 
     it 'calls publish on the publisher' do
-      described_class.publish('foo') { |_| }
+      described_class.publish('foo', 'the-topic') { |_| }
       expect(publisher).to have_received(:publish)
         .with('foo')
     end
@@ -102,7 +102,7 @@ RSpec.describe PubsubClient do
 
       it 'raises an error' do
         expect do
-          described_class.publish('foo') { |_| }
+          described_class.publish('foo', 'the-topic') { |_| }
         end.to raise_error(PubsubClient::ConfigurationError, 'PubsubClient must be configured or stubbed')
       end
     end
