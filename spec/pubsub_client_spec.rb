@@ -106,5 +106,13 @@ RSpec.describe PubsubClient do
         end.to raise_error(PubsubClient::ConfigurationError, 'PubsubClient must be configured or stubbed')
       end
     end
+
+    context 'when an invalid topic is given' do
+      it 'raises an error' do
+        expect do
+          described_class.publish('foo', 'some-invalid-topic') { |_| }
+        end.to raise_error(PubsubClient::ConfigurationError, 'Invalid topic given')
+      end
+    end
   end
 end

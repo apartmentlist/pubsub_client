@@ -44,6 +44,12 @@ module PubsubClient
         raise ConfigurationError, 'PubsubClient must be configured or stubbed'
       end
 
+      unless @publisher_factory.build[topic]
+        raise ConfigurationError, 'Invalid topic given'
+      end
+
+      # The call to @publisher_factory has already been memoized.
+      # No penalty for calling it again.
       @publisher_factory.build[topic].publish(message, &block)
     end
   end
