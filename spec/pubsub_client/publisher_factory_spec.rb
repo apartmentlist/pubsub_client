@@ -2,7 +2,7 @@
 
 module PubsubClient
   RSpec.describe PublisherFactory do
-    subject(:factory) { described_class.new(['the-topic']) }
+    subject(:factory) { described_class.new }
 
     let(:pubsub) { instance_double(Google::Cloud::PubSub::Project) }
     let(:topic) { instance_double(Google::Cloud::PubSub::Topic) }
@@ -39,7 +39,7 @@ module PubsubClient
 
       it 'creates a new publisher' do
         2.times do
-          factory.build
+          factory.build('the-topic')
         end
 
         expect(pubsub).to have_received(:topic).twice
@@ -48,20 +48,20 @@ module PubsubClient
 
     it 'memoizes the publisher' do
       2.times do
-        factory.build
+        factory.build('the-topic')
       end
 
       expect(pubsub).to have_received(:topic).once
     end
 
     it 'builds the publisher' do
-      factory.build
+      factory.build('the-topic')
       expect(Publisher).to have_received(:new)
         .with(topic)
     end
 
     it 'returns the publisher' do
-      expect(factory.build).to eq({ 'the-topic' => publisher })
+      expect(factory.build('the-topic')).to eq(publisher)
     end
   end
 end

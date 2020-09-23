@@ -5,13 +5,11 @@ require_relative 'publisher'
 module PubsubClient
   # Build and memoize the Publisher, accounting for GRPC's requirements around forking.
   class PublisherFactory
-    # @param [Array<String>]
-    def initialize(topic_names)
-      @topic_names = topic_names
+    def initialize
       @mutex = Mutex.new
     end
 
-    def build
+    def build(topic_name)
       # GRPC fails when attempting to use a connection created in a process that gets
       # forked with the message
       #
@@ -21,7 +19,7 @@ module PubsubClient
       # PubSub.
       #
       # To prevent incurring overhead, memoize the publisher per process.
-      return @publishers if @publisher_pid == current_pid
+      return @publisher if @publisher_pid == current_pid
 
       # We are in a multi-threaded world and need to be careful not to build the publisher
       # in multiple threads. Lock the mutex so that only one thread can enter this block
@@ -31,17 +29,17 @@ module PubsubClient
         # know that one will have built the publisher before the second is able to enter.
         # If we detect that case, then bail out so as to not rebuild the publisher.
         unless @publisher_pid == current_pid
-          @publishers = build_publishers
+          @publisher = build_publisher(topic_name)
           @publisher_pid = Process.pid
         end
       end
 
-      @publishers
+      @publisher
     end
 
     private
 
-    attr_reader :mutex, :topic_names
+    attr_reader :mutex
 
     # Used for testing to simulate when a process is forked. In those cases,
     # this helps us test that the `.build` method creates different publishers.
@@ -49,20 +47,14 @@ module PubsubClient
       Process.pid
     end
 
-    # @return [Hash<String, Publisher>] this returns a hash where the key is the
-    #         topic_name and the value is the Publisher for that topic
-    def build_publishers
+    def build_publisher(topic_name)
       pubsub = Google::Cloud::PubSub.new
+      topic = pubsub.topic(topic_name)
+      publisher = Publisher.new(topic)
 
-      publishers = {}
-      topic_names.each do |name|
-        topic = pubsub.topic(name)
-        publishers[name] = Publisher.new(topic)
-      end
+      at_exit { publisher.flush }
 
-      at_exit { publishers.values.each { |p| p.flush } }
-
-      publishers
+      publisher
     end
   end
 end
