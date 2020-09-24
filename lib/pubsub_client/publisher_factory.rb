@@ -7,7 +7,7 @@ module PubsubClient
   class PublisherFactory
     def initialize
       @mutex = Mutex.new
-      @memo = {}
+      @publishers = {}
     end
 
     def build(topic_name)
@@ -20,7 +20,7 @@ module PubsubClient
       # PubSub.
       #
       # To prevent incurring overhead, memoize the publisher per process.
-      return memo[topic_name].publisher if memo[topic_name]&.pid == current_pid
+      return publishers[topic_name].publisher if publishers[topic_name]&.pid == current_pid
 
       # We are in a multi-threaded world and need to be careful not to build the publisher
       # in multiple threads. Lock the mutex so that only one thread can enter this block
@@ -29,17 +29,17 @@ module PubsubClient
         # It's possible two threads made it to this point, but since we have a lock we
         # know that one will have built the publisher before the second is able to enter.
         # If we detect that case, then bail out so as to not rebuild the publisher.
-        unless memo[topic_name]&.pid == current_pid
-          memo[topic_name] = Memo.new(build_publisher(topic_name), Process.pid)
+        unless publishers[topic_name]&.pid == current_pid
+          publishers[topic_name] = Memo.new(build_publisher(topic_name), Process.pid)
         end
       end
 
-      memo[topic_name].publisher
+      publishers[topic_name].publisher
     end
 
     private
 
-    attr_accessor :memo
+    attr_accessor :publishers
 
     Memo = Struct.new(:publisher, :pid)
 

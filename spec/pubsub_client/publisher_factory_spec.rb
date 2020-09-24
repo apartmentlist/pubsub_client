@@ -62,13 +62,10 @@ module PubsubClient
 
       # We need a way to distinguish between these objects and setting an `id`
       # attribute will allow us to do that.
-      let(:publisher1) { Struct.new(:flush, :id).new }
-      let(:publisher2) { Struct.new(:flush, :id).new }
+      let(:publisher1) { Struct.new(:flush, :id).new(nil, 1) }
+      let(:publisher2) { Struct.new(:flush, :id).new(nil, 2) }
 
       before do
-        publisher1.id = 1
-        publisher2.id = 2
-
         allow(pubsub)
           .to receive(:topic)
           .with('topic-1')
