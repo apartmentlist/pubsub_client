@@ -13,7 +13,7 @@ module PubsubClient
     end
 
     def publish(message, topic, &block)
-      @publisher_factory = PublisherFactory.new unless @publisher_factory
+      @publisher_factory ||= PublisherFactory.new
       @publisher_factory.build(topic).publish(message, &block)
     end
   end
