@@ -24,7 +24,7 @@ module PubsubClient
       # We are in a multi-threaded world and need to be careful not to build the publisher
       # in multiple threads. Lock the mutex so that only one thread can enter this block
       # at a time.
-      mutex.synchronize do
+      @mutex.synchronize do
         # It's possible two threads made it to this point, but since we have a lock we
         # know that one will have built the publisher before the second is able to enter.
         # If we detect that case, then bail out so as to not rebuild the publisher.
@@ -38,8 +38,6 @@ module PubsubClient
     end
 
     private
-
-    attr_reader :mutex
 
     # Used for testing to simulate when a process is forked. In those cases,
     # this helps us test that the `.build` method creates different publishers.

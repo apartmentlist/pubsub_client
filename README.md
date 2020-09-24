@@ -20,29 +20,15 @@ Or install it yourself as:
 
 ## Configuration
 
-In order to use this gem, the environment variable `GOOGLE_APPLICATION_CREDENTIALS` must be set and point to the credentials JSON file. Additionally, here are configuration settings that may need to be set:
-- `topic_name` (required unless stubbed) - name of the Google Cloud Pub/Sub topic to publish messages to.
+In order to use this gem, the environment variable `GOOGLE_APPLICATION_CREDENTIALS` must be set and point to the credentials JSON file.
 
-If there are environments where setting up credentials is too burdensome and/or publishing messages is not desired, `PubsubClient` can be stubbed out with `PubsubClient.stub!`
-
-E.g.
+If there are environments where setting up credentials is too burdensome and/or publishing messages is not desired, `PubsubClient` can be stubbed out with `PubsubClient.stub!`, e.g.
 
 ```ruby
 if test_env?
   PubsubClient.stub!
-else
-  PubsubClient.configure do |config|
-    config.topic_names << ENV['MY_TOPIC']
-    config.topic_names << ENV['ANOTHER_TOPIC']
-
-
-    # Alternatively, assuming ENV['TOPICS'] = 'my-topic,another-topic'
-    #config.topic_names += ENV['TOPICS'].split(',')
-  end
 end
 ```
-
-The `config.topic_names` is an array of topic names. It is set to an empty array by default. At least one topic must be configured otherwise an exception is thrown.
 
 ## Usage
 
@@ -58,8 +44,6 @@ PubsubClient.publish(message, 'some-topic') do |result|
   end
 end
 ```
-
-**Note:** Attempting to publish to a topic that was not configured will throw an exception.
 
 ## Development
 
