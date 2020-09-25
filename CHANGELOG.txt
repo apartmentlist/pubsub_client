@@ -1,3 +1,8 @@
+Version 1.1.0 2020-09-25
+------------------------
+d3f8ed1 Throw error if topic does not exist
+a95430f Bump major version and update change log
+
 Version 1.0.0 2020-09-24
 ------------------------
 1d7dc1c Allow publishing to any topic
