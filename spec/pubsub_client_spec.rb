@@ -36,5 +36,22 @@ RSpec.describe PubsubClient do
       expect(publisher).to have_received(:publish)
         .with('foo')
     end
+
+    context 'when no credentials are set' do
+      before do
+        @gac = ENV['GOOGLE_APPLICATION_CREDENTIALS']
+        ENV['GOOGLE_APPLICATION_CREDENTIALS'] = nil
+      end
+
+      after do
+        ENV['GOOGLE_APPLICATION_CREDENTIALS'] = @gac
+      end
+
+      it 'raises an error' do
+        expect do
+          described_class.publish('foo', 'the-topic')
+        end.to raise_error(PubsubClient::CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set')
+      end
+    end
   end
 end
