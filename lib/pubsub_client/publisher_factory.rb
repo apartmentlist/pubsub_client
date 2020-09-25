@@ -52,6 +52,7 @@ module PubsubClient
     def build_publisher(topic_name)
       pubsub = Google::Cloud::PubSub.new
       topic = pubsub.topic(topic_name)
+      raise InvalidTopicError, "The topic #{topic_name} does not exist" unless topic
       publisher = Publisher.new(topic)
 
       at_exit { publisher.flush }
