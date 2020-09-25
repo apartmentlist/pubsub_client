@@ -2,7 +2,7 @@
 
 module PubsubClient
   RSpec.describe PublisherFactory do
-    subject(:factory) { described_class.new('the-topic') }
+    subject(:factory) { described_class.new }
 
     let(:pubsub) { instance_double(Google::Cloud::PubSub::Project) }
     let(:topic) { instance_double(Google::Cloud::PubSub::Topic) }
@@ -39,29 +39,69 @@ module PubsubClient
 
       it 'creates a new publisher' do
         2.times do
-          factory.build
+          factory.build('the-topic')
         end
 
         expect(pubsub).to have_received(:topic).twice
       end
     end
 
-    it 'memoizes the publisher' do
-      2.times do
-        factory.build
-      end
-
-      expect(pubsub).to have_received(:topic).once
-    end
-
     it 'builds the publisher' do
-      factory.build
+      factory.build('the-topic')
       expect(Publisher).to have_received(:new)
         .with(topic)
     end
 
     it 'returns the publisher' do
-      expect(factory.build).to eq(publisher)
+      expect(factory.build('the-topic')).to eq(publisher)
+    end
+
+    context 'multiple topics' do
+      let(:topic1) { instance_double(Google::Cloud::PubSub::Topic, name: '/projects/project-identifier/topics/topic-1') }
+      let(:topic2) { instance_double(Google::Cloud::PubSub::Topic, name: '/projects/project-identifier/topics/topic-2') }
+
+      # We need a way to distinguish between these objects and setting an `id`
+      # attribute will allow us to do that.
+      let(:publisher1) { Struct.new(:flush, :id).new(nil, 1) }
+      let(:publisher2) { Struct.new(:flush, :id).new(nil, 2) }
+
+      before do
+        allow(pubsub)
+          .to receive(:topic)
+          .with('topic-1')
+          .and_return(topic1)
+        allow(pubsub)
+          .to receive(:topic)
+          .with('topic-2')
+          .and_return(topic2)
+        allow(Publisher)
+          .to receive(:new)
+          .with(topic1)
+          .and_return(publisher1)
+        allow(Publisher)
+          .to receive(:new)
+          .with(topic2)
+          .and_return(publisher2)
+      end
+
+      it 'builds different publishers for different topics' do
+        expect(factory.build('topic-1')).to eq(publisher1)
+        expect(factory.build('topic-2')).to eq(publisher2)
+      end
+
+      it 'memoizes all publishers' do
+        2.times do
+          factory.build('topic-1')
+          factory.build('topic-2')
+        end
+
+        expect(pubsub).to have_received(:topic)
+          .with('topic-1')
+          .once
+        expect(pubsub).to have_received(:topic)
+          .with('topic-2')
+          .once
+      end
     end
   end
 end
