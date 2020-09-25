@@ -1,6 +1,6 @@
 Version 1.0.0 2020-09-24
 ------------------------
-396f5f8 Allow publishing to any topic
+1d7dc1c Allow publishing to any topic
 
 Version 0.1.0 2020-08-25
 ------------------------

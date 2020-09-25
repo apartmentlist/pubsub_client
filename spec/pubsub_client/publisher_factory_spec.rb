@@ -56,6 +56,21 @@ module PubsubClient
       expect(factory.build('the-topic')).to eq(publisher)
     end
 
+    context 'when the topic does not exist' do
+      before do
+        allow(pubsub)
+          .to receive(:topic)
+          .with('invalid-topic')
+          .and_return(nil)
+      end
+
+      it 'raises an error' do
+        expect do
+          factory.build('invalid-topic')
+        end.to raise_error(InvalidTopicError, 'The topic invalid-topic does not exist')
+      end
+    end
+
     context 'multiple topics' do
       let(:topic1) { instance_double(Google::Cloud::PubSub::Topic, name: '/projects/project-identifier/topics/topic-1') }
       let(:topic2) { instance_double(Google::Cloud::PubSub::Topic, name: '/projects/project-identifier/topics/topic-2') }

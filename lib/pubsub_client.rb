@@ -5,6 +5,7 @@ require 'pubsub_client/publisher_factory'
 module PubsubClient
   Error = Class.new(StandardError)
   ConfigurationError = Class.new(Error)
+  InvalidTopicError = Class.new(Error)
 
   class << self
     def stub!
