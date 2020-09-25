@@ -5,6 +5,7 @@ require 'pubsub_client/publisher_factory'
 module PubsubClient
   Error = Class.new(StandardError)
   ConfigurationError = Class.new(Error)
+  CredentialsError = Class.new(Error)
   InvalidTopicError = Class.new(Error)
 
   class << self
@@ -14,6 +15,10 @@ module PubsubClient
     end
 
     def publish(message, topic, &block)
+      unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
+        raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set'
+      end
+
       @publisher_factory ||= PublisherFactory.new
       @publisher_factory.build(topic).publish(message, &block)
     end
