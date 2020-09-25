@@ -54,4 +54,23 @@ RSpec.describe PubsubClient do
       end
     end
   end
+
+  describe '.subscribe' do
+    let(:subscriber) { instance_double(PubsubClient::Subscriber, subscribe: nil) }
+
+    before do
+      factory = instance_double(PubsubClient::SubscriberFactory, build: subscriber)
+      described_class.instance_variable_set(:@subscriber_factory, factory)
+    end
+
+    after do
+      described_class.instance_variable_set(:@subscriber_factory, nil)
+    end
+
+    it 'calls subscribe on the subscriber' do
+      described_class.subscribe('foo')
+      expect(subscriber).to have_received(:subscribe)
+        .with('foo')
+    end
+  end
 end
