@@ -16,17 +16,36 @@ module PubsubClient
     end
 
     def publish(message, topic, &block)
-      unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
-        raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set'
-      end
+      ensure_credentials!
 
       @publisher_factory ||= PublisherFactory.new
       @publisher_factory.build(topic).publish(message, &block)
     end
 
     def subscribe(subscription)
+      ensure_credentials!
+
       @subscriber_factory ||= SubscriberFactory.new
-      @subscriber_factory.build(subscription).subscribe
+      subscription = @subscriber_factory.build(subscription)
+      subscriber = subscription.listen do |received_message|
+        yield received_message
+      end
+
+      begin
+        puts 'Starting subscriber...'
+        subscriber.start
+        sleep
+      rescue SignalException
+        subscriber.stop.wait!
+      end
+    end
+
+    private
+
+    def ensure_credentials!
+      unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
+        raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set'
+      end
     end
   end
 end
