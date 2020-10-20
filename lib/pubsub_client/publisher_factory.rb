@@ -10,6 +10,8 @@ module PubsubClient
       @publishers = {}
     end
 
+    # @param topic_name [String]
+    # @return [Publisher]
     def build(topic_name)
       # GRPC fails when attempting to use a connection created in a process that gets
       # forked with the message

@@ -8,6 +8,8 @@ module PubsubClient
       @subscribers = {}
     end
 
+    # @param subscription_name [String]
+    # @retrun [Subscriber]
     def build(subscription_name)
       if @subscribers.key?(subscription_name)
         raise ConfigurationError, "PubsubClient already subscribed to #{subscription_name}"

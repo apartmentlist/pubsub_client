@@ -18,6 +18,8 @@ module PubsubClient
       @subscriber_factory = NullSubscriberFactory.new
     end
 
+    # @param message [String]
+    # @param topic [String]
     def publish(message, topic, &block)
       ensure_credentials!
 
@@ -25,6 +27,9 @@ module PubsubClient
       @publisher_factory.build(topic).publish(message, &block)
     end
 
+    # @param subscription [String]
+    # @param concurency [Integer]
+    # @param auto_ack [Boolean]
     def subscribe(subscription, concurrency: Subscriber::DEFAULT_CONCURRENCY, auto_ack: true, &block)
       ensure_credentials!
 
