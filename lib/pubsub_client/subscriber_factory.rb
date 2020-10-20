@@ -21,6 +21,7 @@ module PubsubClient
     def build_subscriber(subscription_name)
       pubsub = Google::Cloud::PubSub.new
       subscription = pubsub.subscription(subscription_name)
+      raise InvalidSubscriptionError, "The subscription #{subscription_name} does not exist" unless subscription
       Subscriber.new(subscription)
     end
   end

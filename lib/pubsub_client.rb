@@ -8,6 +8,7 @@ module PubsubClient
   ConfigurationError = Class.new(Error)
   CredentialsError = Class.new(Error)
   InvalidTopicError = Class.new(Error)
+  InvalidSubscriptionError = Class.new(Error)
 
   class << self
     def stub!
