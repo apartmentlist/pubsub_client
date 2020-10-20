@@ -4,24 +4,22 @@ require 'google/cloud/pubsub'
 
 module PubsubClient
   class Subscriber
+    # @param subscription [Google::Cloud::PubSub::Subscription]
     def initialize(subscription)
       @subscription = subscription
     end
 
     # flag for auto-ack
     def subscribe(&block)
-      puts 'Inside Subscriber#subscribe'
-      subscriber = @subscription.listen do |received_message|
+      listener = @subscription.listen do |received_message|
         yield received_message
       end
 
       begin
-        puts 'Starting subscriber...'
-        subscriber.start
+        listener.start
         sleep
       rescue SignalException
-        subscriber.stop.wait!
-        puts 'Subscriber STOPPED'
+        listener.stop.wait!
       end
     end
   end

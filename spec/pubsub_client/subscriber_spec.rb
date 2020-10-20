@@ -5,7 +5,7 @@ module PubsubClient
     subject(:subscriber) { described_class.new(subscription) }
 
     let(:subscription) { instance_double(Google::Cloud::PubSub::Subscription) }
-    let(:google_subscriber) { instance_double(Google::Cloud::PubSub::Subscriber) }
+    let(:listener) { instance_double(Google::Cloud::PubSub::Subscriber) }
 
     before do
       # This must be stubbed out so that the process that runs the specs doesn't
@@ -15,13 +15,13 @@ module PubsubClient
         .to receive(:listen)
         .and_yield('the-message')
       allow(subscription).to receive(:listen)
-        .and_return(google_subscriber)
-      allow(google_subscriber).to receive(:start)
+        .and_return(listener)
+      allow(listener).to receive(:start)
     end
 
     it 'starts the subscriber' do
       subject.subscribe { |_| }
-      expect(google_subscriber).to have_received(:start)
+      expect(listener).to have_received(:start)
     end
 
     context 'when there is a SignalException' do
@@ -29,14 +29,14 @@ module PubsubClient
         allow(subscriber).to receive(:sleep)
           .and_raise(SignalException.new('HUP'))
 
-        allow(google_subscriber).to receive(:stop) { google_subscriber }
-        allow(google_subscriber).to receive(:wait!)
+        allow(listener).to receive(:stop) { listener }
+        allow(listener).to receive(:wait!)
       end
 
       it 'stops the subscriber' do
         subject.subscribe
-        expect(google_subscriber).to have_received(:stop)
-        expect(google_subscriber).to have_received(:wait!)
+        expect(listener).to have_received(:stop)
+        expect(listener).to have_received(:wait!)
       end
     end
 
@@ -45,7 +45,7 @@ module PubsubClient
       subject.subscribe do |result|
         yielded_result = result
       end
-      google_subscriber.start
+      listener.start
       expect(yielded_result).to eq('the-result')
     end
   end
