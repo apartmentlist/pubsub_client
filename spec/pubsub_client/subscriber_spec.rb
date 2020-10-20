@@ -11,9 +11,6 @@ module PubsubClient
       # This must be stubbed out so that the process that runs the specs doesn't
       # actually sleep.
       allow(subscriber).to receive(:sleep)
-      allow(subscription)
-        .to receive(:listen)
-        .and_yield('the-message')
       allow(subscription).to receive(:listen)
         .with({ threads: { callback: 1 } })
         .and_return(listener)
@@ -39,15 +36,6 @@ module PubsubClient
         expect(listener).to have_received(:stop)
         expect(listener).to have_received(:wait!)
       end
-    end
-
-    xit 'yields the result to a block' do
-      yielded_result = nil
-      subject.subscribe do |result|
-        yielded_result = result
-      end
-      listener.start
-      expect(yielded_result).to eq('the-result')
     end
   end
 end

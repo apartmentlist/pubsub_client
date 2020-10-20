@@ -54,7 +54,7 @@ RSpec.describe PubsubClient do
     end
 
     it 'calls publish on the publisher' do
-      described_class.publish('foo', 'the-topic') { |_| }
+      described_class.publish('foo', 'the-topic')
       expect(publisher).to have_received(:publish)
         .with('foo')
     end
