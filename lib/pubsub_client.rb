@@ -1,5 +1,6 @@
 require 'pubsub_client/version'
 require 'pubsub_client/null_publisher_factory'
+require 'pubsub_client/null_subscriber_factory'
 require 'pubsub_client/publisher_factory'
 require 'pubsub_client/subscriber_factory'
 
@@ -13,8 +14,8 @@ module PubsubClient
   class << self
     def stub!
       raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory || @subscriber_factory
-      # Null subscriber here
       @publisher_factory = NullPublisherFactory.new
+      @subscriber_factory = NullSubscriberFactory.new
     end
 
     def publish(message, topic, &block)
