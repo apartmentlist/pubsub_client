@@ -11,7 +11,8 @@ module PubsubClient
 
   class << self
     def stub!
-      raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory
+      raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory || @subscriber_factory
+      # Null subscriber here
       @publisher_factory = NullPublisherFactory.new
     end
 
@@ -22,22 +23,11 @@ module PubsubClient
       @publisher_factory.build(topic).publish(message, &block)
     end
 
-    def subscribe(subscription)
+    def subscribe(subscription, &block)
       ensure_credentials!
 
       @subscriber_factory ||= SubscriberFactory.new
-      subscription = @subscriber_factory.build(subscription)
-      subscriber = subscription.listen do |received_message|
-        yield received_message
-      end
-
-      begin
-        puts 'Starting subscriber...'
-        subscriber.start
-        sleep
-      rescue SignalException
-        subscriber.stop.wait!
-      end
+      @subscriber_factory.build(subscription).subscribe(&block)
     end
 
     private

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'subscriber'
+
 module PubsubClient
   class SubscriberFactory
     def initialize
@@ -18,7 +20,8 @@ module PubsubClient
 
     def build_subscriber(subscription_name)
       pubsub = Google::Cloud::PubSub.new
-      subscription = pubsub.subscription('scratch')
+      subscription = pubsub.subscription(subscription_name)
+      Subscriber.new(subscription)
     end
   end
 end

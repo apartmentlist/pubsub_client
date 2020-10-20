@@ -4,16 +4,25 @@ require 'google/cloud/pubsub'
 
 module PubsubClient
   class Subscriber
-    def initialize(topic)
-      @topic = topic
+    def initialize(subscription)
+      @subscription = subscription
     end
 
+    # flag for auto-ack
+    def subscribe(&block)
+      puts 'Inside Subscriber#subscribe'
+      subscriber = @subscription.listen do |received_message|
+        yield received_message
+      end
 
-    def subscribe
+      begin
+        puts 'Starting subscriber...'
+        subscriber.start
+        sleep
+      rescue SignalException
+        subscriber.stop.wait!
+        puts 'Subscriber STOPPED'
+      end
     end
-
-    private
-
-    attr_reader :topic
   end
 end

@@ -70,7 +70,6 @@ RSpec.describe PubsubClient do
     it 'calls subscribe on the subscriber' do
       described_class.subscribe('foo')
       expect(subscriber).to have_received(:subscribe)
-        .with('foo')
     end
   end
 end
