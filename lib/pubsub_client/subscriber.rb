@@ -4,14 +4,17 @@ require 'google/cloud/pubsub'
 
 module PubsubClient
   class Subscriber
+    DEFAULT_CONCURRENCY = 8
+
     # @param subscription [Google::Cloud::PubSub::Subscription]
     def initialize(subscription)
       @subscription = subscription
     end
 
     # flag for auto-ack
-    def subscribe(&block)
-      listener = @subscription.listen do |received_message|
+    # @param concurrency [Integer]
+    def subscribe(concurrency, &block)
+      listener = @subscription.listen(threads: { callback: concurrency }) do |received_message|
         yield received_message
       end
 

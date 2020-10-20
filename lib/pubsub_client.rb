@@ -25,11 +25,11 @@ module PubsubClient
       @publisher_factory.build(topic).publish(message, &block)
     end
 
-    def subscribe(subscription, &block)
+    def subscribe(subscription, concurrency: Subscriber::DEFAULT_CONCURRENCY, &block)
       ensure_credentials!
 
       @subscriber_factory ||= SubscriberFactory.new
-      @subscriber_factory.build(subscription).subscribe(&block)
+      @subscriber_factory.build(subscription).subscribe(concurrency, &block)
     end
 
     private

@@ -15,12 +15,13 @@ module PubsubClient
         .to receive(:listen)
         .and_yield('the-message')
       allow(subscription).to receive(:listen)
+        .with({ threads: { callback: 1 } })
         .and_return(listener)
       allow(listener).to receive(:start)
     end
 
     it 'starts the subscriber' do
-      subject.subscribe { |_| }
+      subject.subscribe(1)
       expect(listener).to have_received(:start)
     end
 
@@ -34,7 +35,7 @@ module PubsubClient
       end
 
       it 'stops the subscriber' do
-        subject.subscribe
+        subject.subscribe(1)
         expect(listener).to have_received(:stop)
         expect(listener).to have_received(:wait!)
       end
