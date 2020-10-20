@@ -21,7 +21,7 @@ module PubsubClient
     end
 
     it 'starts the subscriber' do
-      subject.subscribe(1)
+      subject.subscribe(1, true)
       expect(listener).to have_received(:start)
     end
 
@@ -35,7 +35,7 @@ module PubsubClient
       end
 
       it 'stops the subscriber' do
-        subject.subscribe(1)
+        subject.subscribe(1, true)
         expect(listener).to have_received(:stop)
         expect(listener).to have_received(:wait!)
       end

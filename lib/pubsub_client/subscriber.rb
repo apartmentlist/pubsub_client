@@ -11,11 +11,12 @@ module PubsubClient
       @subscription = subscription
     end
 
-    # flag for auto-ack
     # @param concurrency [Integer]
-    def subscribe(concurrency, &block)
+    # @param auto_ack [Boolean]
+    def subscribe(concurrency, auto_ack, &block)
       listener = @subscription.listen(threads: { callback: concurrency }) do |received_message|
-        yield received_message
+        yield received_message.data
+        received_message.acknowledge! if auto_ack
       end
 
       begin
