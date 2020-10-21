@@ -77,8 +77,8 @@ RSpec.describe PubsubClient do
     end
   end
 
-  describe '.subscribe' do
-    let(:subscriber) { instance_double(PubsubClient::Subscriber, subscribe: nil) }
+  describe '.subscriber' do
+    let(:subscriber) { instance_double(PubsubClient::Subscriber, listener: nil) }
 
     before do
       factory = instance_double(PubsubClient::SubscriberFactory, build: subscriber)
@@ -89,9 +89,9 @@ RSpec.describe PubsubClient do
       described_class.instance_variable_set(:@subscriber_factory, nil)
     end
 
-    it 'calls subscribe on the subscriber' do
-      described_class.subscribe('foo')
-      expect(subscriber).to have_received(:subscribe)
+    it 'it returns the subscriber' do
+      described_class.subscriber('foo')
+      expect(described_class.subscriber('foo')).to eq(subscriber)
     end
 
     context 'when no credentials are set' do
@@ -106,7 +106,7 @@ RSpec.describe PubsubClient do
 
       it 'raises an error' do
         expect do
-          described_class.subscribe('foo')
+          described_class.subscriber('foo')
         end.to raise_error(PubsubClient::CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set')
       end
     end

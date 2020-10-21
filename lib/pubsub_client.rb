@@ -28,13 +28,11 @@ module PubsubClient
     end
 
     # @param subscription [String]
-    # @param concurency [Integer]
-    # @param auto_ack [Boolean]
-    def subscribe(subscription, concurrency: Subscriber::DEFAULT_CONCURRENCY, auto_ack: true, &block)
+    def subscriber(subscription)
       ensure_credentials!
 
       @subscriber_factory ||= SubscriberFactory.new
-      @subscriber_factory.build(subscription).subscribe(concurrency, auto_ack, &block)
+      @subscriber_factory.build(subscription)
     end
 
     private
