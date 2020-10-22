@@ -7,7 +7,7 @@ This is a wrapper around the `google-cloud-pubsub` gem. There are times when it 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'pubsub_client'
+gem 'pubsub_client', github: 'apartmentlist/pubsub_client', tag: '<ADD-LATEST-TAG-HERE>'
 ```
 
 And then execute:
