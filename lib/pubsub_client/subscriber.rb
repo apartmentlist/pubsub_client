@@ -16,7 +16,7 @@ module PubsubClient
     #                             acked to remove it from the topic. Default is `true`.
     #
     # @return [Google::Cloud::PubSub::Subscriber]
-    def listener(concurrency = DEFAULT_CONCURRENCY, auto_ack = true, &block)
+    def listener(concurrency: DEFAULT_CONCURRENCY, auto_ack: true, &block)
       @listener ||= begin
         @subscription.listen(threads: { callback: concurrency }) do |received_message|
           yield received_message.data, received_message

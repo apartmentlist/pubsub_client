@@ -15,7 +15,7 @@ module PubsubClient
       # actually sleep.
       allow(subscriber).to receive(:sleep)
       allow(subscription).to receive(:listen)
-        .with({ threads: { callback: 1 } })
+        .with({ threads: { callback: 8 } })
         .and_yield(pubsub_message)
         .and_return(listener)
       allow(listener).to receive(:start)
@@ -23,20 +23,20 @@ module PubsubClient
 
     describe '.subscribe' do
       it 'starts the listener' do
-        subject.listener(1, true) { |_,_| }
+        subject.listener { |_,_| }
         subject.subscribe
         expect(listener).to have_received(:start)
       end
 
       it 'acks the message' do
-        subject.listener(1, true) { |_,_| }
+        subject.listener { |_,_| }
         subject.subscribe
         expect(pubsub_message).to have_received(:acknowledge!)
       end
 
       context 'when auto ack is not desired' do
         it 'does not ack the message' do
-          subject.listener(1, false) { |_,_| }
+          subject.listener(auto_ack: false) { |_,_| }
           subject.subscribe
           expect(pubsub_message).to_not have_received(:acknowledge!)
         end
@@ -61,7 +61,7 @@ module PubsubClient
         end
 
         it 'stops the subscriber' do
-          subject.listener(1, true) { |_,_| }
+          subject.listener { |_,_| }
           subject.subscribe
           expect(listener).to have_received(:stop)
           expect(listener).to have_received(:wait!)
