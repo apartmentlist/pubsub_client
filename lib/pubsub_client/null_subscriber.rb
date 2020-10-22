@@ -32,7 +32,7 @@ module PubsubClient
     end
 
     def on_error(&block)
-      yield StandardErro.new('Boom!')
+      yield StandardError.new('Boom!')
     end
   end
 end

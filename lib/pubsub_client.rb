@@ -18,8 +18,8 @@ module PubsubClient
       @subscriber_factory = NullSubscriberFactory.new
     end
 
-    # @param message [String]
-    # @param topic [String]
+    # @param message [String] The message to publish.
+    # @param topic [String] The name of the topic to publish to.
     def publish(message, topic, &block)
       ensure_credentials!
 
@@ -27,7 +27,7 @@ module PubsubClient
       @publisher_factory.build(topic).publish(message, &block)
     end
 
-    # @param subscription [String]
+    # @param subscription [String] - The name of the topic to subscribe to.
     def subscriber(subscription)
       ensure_credentials!
 
