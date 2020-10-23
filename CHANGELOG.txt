@@ -1,3 +1,14 @@
+Version 1.3.0 2020-10-23
+------------------------
+e9e87f7 This adds the ability to subscribe to a Pub/Sub topic. Of note, we expose two additional configuration params:
+- `concurrency`: the number of threads the subscriber will run to process messages (defaults to 8 threads)
+-  `auto_ack`: flag to auto ack messages (default is `true` and _will_ ack messages)
+
+These changes come with a handful of useful checks:
+- ensures credentials are configured prior to subscribing
+- raises an error if the target subscription does not exist
+- raises an error if attempting to subscribe to a topic that has already been subscribed to
+
 Version 1.2.0 2020-09-25
 ------------------------
 aede3ab Raise custom error if GOOGLE_APPLICATION_CREDENTIALS not set
