@@ -32,9 +32,11 @@ end
 
 ## Usage
 
+### Publishing
+
 To publish a message to Pub/Sub, call `PubsubClient.publish(message, 'the-topic')`. This method takes any serializable object as an argument and yields a result object to a block. The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
 
-### Example
+#### Example
 ```ruby
 PubsubClient.publish(message, 'some-topic') do |result|
   if result.succeeded?
@@ -42,6 +44,36 @@ PubsubClient.publish(message, 'some-topic') do |result|
   else
     puts result.error
   end
+end
+```
+
+### Subscribing
+
+To subscribe to a topic, a client must first get a handle to the subscriber object. After doing so, a call to `subscriber.listener` will yield two arguments: the data (most clients will only need this) and the full Pub/Sub message (for anything more robust). Documentation for the full message can be found [here](https://googleapis.dev/ruby/google-cloud-pubsub/latest/Google/Cloud/PubSub/ReceivedMessage.html).
+
+Optionally, a client can choose to handle exceptions raised by the subscriber. If a client chooses to do so, the listener **must** be configured before `on_error` since the latter needs a handler to the underlying listener.
+
+#### Example
+```ruby
+subscriber = PubsubClient.subscriber('some-topic')
+
+subscriber.listener(concurrency: 4, auto_ack: false) do |data, received_message|
+  # Most clients will only need the first yielded arg.
+  # It is the same as calling received_message.data
+end
+
+# Optional
+subscriber.on_error do |ex|
+  # Do something with the exception.
+end
+
+subscriber.subscribe # This will sleep
+```
+
+By default, the underlying subscriber will use a concurrency of `8` threads and will acknowledge all messages. If these defaults are acceptable to the client, no arguments need to be passed in the call to `listener`.
+```ruby
+subscriber.listener do |data, received_message|
+  # Do something
 end
 ```
 
