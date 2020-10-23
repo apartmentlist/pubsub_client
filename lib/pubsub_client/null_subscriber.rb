@@ -13,10 +13,6 @@ module PubsubClient
         '{"key":"value"}'
       end
 
-      def ordering_key
-        'ordering-key'
-      end
-
       def published_at
         Time.now
       end
@@ -32,7 +28,7 @@ module PubsubClient
     end
 
     def on_error(&block)
-      yield StandardError.new('Boom!')
+      # no-op
     end
   end
 end
