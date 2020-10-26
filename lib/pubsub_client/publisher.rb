@@ -9,8 +9,8 @@ module PubsubClient
       @topic = topic
     end
 
-    def publish(message, &block)
-      topic.publish_async(message, &block)
+    def publish(message, attributes = {}, &block)
+      topic.publish_async(message, attributes, &block)
     end
 
     def flush
