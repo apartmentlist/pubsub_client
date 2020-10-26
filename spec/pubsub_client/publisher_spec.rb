@@ -15,7 +15,13 @@ module PubsubClient
     it 'publishes the message asynchronously' do
       subject.publish('foo') { |_| }
       expect(topic).to have_received(:publish_async)
-        .with('foo')
+        .with('foo', {})
+    end
+
+    it 'supports attributes' do
+      subject.publish('foo', bar: 'baz') { |_| }
+      expect(topic).to have_received(:publish_async)
+        .with('foo', {bar: 'baz'})
     end
 
     it 'yields the result to a block' do

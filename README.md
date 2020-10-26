@@ -81,9 +81,19 @@ end
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`.
 
 ## Contributing
+
+To contribute, open a pull request against `main`. Note that once your changes have been made, you should _not_ manually modify the `version.rb` or `CHANGELOG` as these will get updated automatically as part of the release process.
+
+To release a new version, after you have merged your changes into `main`:
+1. Run the `gem-release` script. This can be found [here](https://github.com/apartmentlist/scripts/blob/main/bin/gem-release).
+    ```
+    path/to/gem-release [major/minor/patch] "Short message with changes"
+    ```
+    Note that the `Short message with changes` is what gets reflected in the releases of the repo.
+1. Run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org). This step will update the `version.rb` and `CHANGELOG` files.
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/pubsub_client. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/pubsub_client/blob/master/CODE_OF_CONDUCT.md).
 
