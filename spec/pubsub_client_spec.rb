@@ -56,7 +56,7 @@ RSpec.describe PubsubClient do
     it 'calls publish on the publisher' do
       described_class.publish('foo', 'the-topic')
       expect(publisher).to have_received(:publish)
-        .with('foo')
+        .with('foo', {})
     end
 
     context 'when no credentials are set' do
