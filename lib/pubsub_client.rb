@@ -20,11 +20,11 @@ module PubsubClient
 
     # @param message [String] The message to publish.
     # @param topic [String] The name of the topic to publish to.
-    def publish(message, topic, &block)
+    def publish(message, topic, attributes = {}, &block)
       ensure_credentials!
 
       @publisher_factory ||= PublisherFactory.new
-      @publisher_factory.build(topic).publish(message, &block)
+      @publisher_factory.build(topic).publish(message, attributes, &block)
     end
 
     # @param subscription [String] - The name of the topic to subscribe to.
