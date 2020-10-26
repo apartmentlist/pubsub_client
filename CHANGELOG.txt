@@ -1,3 +1,7 @@
+Version 1.4.1 2020-10-26
+------------------------
+d28d99f Pass published attributes all the way through the client
+
 Version 1.4.0 2020-10-26
 ------------------------
 60b8403 Publish attributes
