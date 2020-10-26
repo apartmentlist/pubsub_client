@@ -1,3 +1,7 @@
+Version 1.4.0 2020-10-26
+------------------------
+60b8403 Publish attributes
+
 Version 1.3.0 2020-10-23
 ------------------------
 e9e87f7 This adds the ability to subscribe to a Pub/Sub topic. Of note, we expose two additional configuration params:
