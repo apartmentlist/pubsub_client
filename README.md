@@ -51,7 +51,7 @@ end
 
 To subscribe to a topic, a client must first get a handle to the subscriber object. After doing so, a call to `subscriber.listener` will yield two arguments: the data (most clients will only need this) and the full Pub/Sub message (for anything more robust). Documentation for the full message can be found [here](https://googleapis.dev/ruby/google-cloud-pubsub/latest/Google/Cloud/PubSub/ReceivedMessage.html).
 
-Optionally, a client can choose to handle exceptions raised by the subscriber. If a client chooses to do so, the listener **must** be configured before `on_error` since the latter needs a handler to the underlying listener.
+Optionally, a client can choose to handle exceptions raised by the subscriber. If a client chooses to do so, the listener **must** be configured before `on_error` since the latter needs a handler to the underlying listener. Additionally, exceptions will only be raised when the work inside the block is happening on the same thread. For instance, if the block enqueues a background worker and that worker raises an error, it will not be handled by the `on_error` block.
 
 #### Example
 ```ruby
