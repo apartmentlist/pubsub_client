@@ -2,11 +2,15 @@
 
 RSpec.describe PubsubClient do
   describe '.stub!' do
-    context 'it sets the null factories' do
-      before(:all) do
-        described_class.stub!
-      end
+    before(:all) do
+      described_class.stub!
+    end
 
+    after(:all) do
+      described_class.instance_variable_set(:@stubbed, nil)
+    end
+
+    context 'it sets the null factories' do
       it 'sets a NullPublisherFactory as the publisher factory' do
         expect(described_class.instance_variable_get(:@publisher_factory)).to be_a(PubsubClient::NullPublisherFactory)
       end
@@ -38,6 +42,18 @@ RSpec.describe PubsubClient do
           described_class.stub!
         end.to raise_error(PubsubClient::ConfigurationError, 'PubsubClient is already configured')
       end
+    end
+
+    it 'does not require credentials for publishing' do
+      expect do
+        described_class.publish('foo', 'the-topic') { }
+      end.to_not raise_error
+    end
+
+    it 'does not require credentials for getting a handle to a subscriber' do
+      expect do
+        described_class.subscriber('foo')
+      end.to_not raise_error
     end
   end
 

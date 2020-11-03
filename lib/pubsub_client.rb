@@ -16,6 +16,7 @@ module PubsubClient
       raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory || @subscriber_factory
       @publisher_factory = NullPublisherFactory.new
       @subscriber_factory = NullSubscriberFactory.new
+      @stubbed = true
     end
 
     # @param message [String] The message to publish.
@@ -38,6 +39,7 @@ module PubsubClient
     private
 
     def ensure_credentials!
+      return if defined?(@stubbed) && @stubbed
       unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
         raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set'
       end
