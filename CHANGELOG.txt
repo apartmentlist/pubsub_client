@@ -1,3 +1,8 @@
+Version 1.5.0 2020-11-05
+------------------------
+6cab366 Do not require GAC when stubbed
+dab08dd Update `Subscriber#on_error` documentation
+
 Version 1.4.1 2020-10-26
 ------------------------
 d28d99f Pass published attributes all the way through the client
