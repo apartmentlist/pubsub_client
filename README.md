@@ -55,7 +55,7 @@ Optionally, a client can choose to handle exceptions raised by the subscriber. I
 
 #### Example
 ```ruby
-subscriber = PubsubClient.subscriber('some-topic')
+subscriber = PubsubClient.subscriber('some-subscription')
 
 subscriber.listener(concurrency: 4, auto_ack: false) do |data, received_message|
   # Most clients will only need the first yielded arg.
