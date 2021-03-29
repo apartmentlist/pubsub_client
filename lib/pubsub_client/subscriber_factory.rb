@@ -2,7 +2,7 @@
 
 require_relative 'subscriber'
 
-module PubsubClient
+class PubsubClient
   class SubscriberFactory
     def initialize
       @subscribers = {}

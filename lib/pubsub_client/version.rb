@@ -1,3 +1,3 @@
-module PubsubClient
+class PubsubClient
   VERSION = '1.5.0'
 end

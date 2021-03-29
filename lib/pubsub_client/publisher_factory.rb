@@ -2,7 +2,7 @@
 
 require_relative 'publisher'
 
-module PubsubClient
+class PubsubClient
   # Build and memoize the Publisher, accounting for GRPC's requirements around forking.
   class PublisherFactory
     def initialize

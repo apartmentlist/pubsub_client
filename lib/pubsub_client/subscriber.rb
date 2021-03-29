@@ -2,7 +2,7 @@
 
 require 'google/cloud/pubsub'
 
-module PubsubClient
+class PubsubClient
   class Subscriber
     DEFAULT_CONCURRENCY = 8
 

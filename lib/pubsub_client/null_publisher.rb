@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PubsubClient
+class PubsubClient
   # A null object to act as a publisher when clients are in dev or test
   class NullPublisher
     # This is required so that this publisher maintains the same contract
