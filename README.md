@@ -22,11 +22,13 @@ Or install it yourself as:
 
 In order to use this gem, the environment variable `GOOGLE_APPLICATION_CREDENTIALS` must be set and point to the credentials JSON file.
 
-If there are environments where setting up credentials is too burdensome and/or publishing messages is not desired, `PubsubClient` can be stubbed out with `PubsubClient.stub!`, e.g.
+If there are environments where setting up credentials is too burdensome and/or publishing messages is not desired, `PubsubClient` can be stubbed out with `.stub!`, e.g.
 
 ```ruby
+@client = PubsubClient.new
+
 if test_env?
-  PubsubClient.stub!
+   @client.stub!
 end
 ```
 
@@ -34,11 +36,11 @@ end
 
 ### Publishing
 
-To publish a message to Pub/Sub, call `PubsubClient.publish(message, 'the-topic')`. This method takes any serializable object as an argument and yields a result object to a block. The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
+To publish a message to Pub/Sub, call `@client.publish(message, 'the-topic')`. This method takes any serializable object as an argument and yields a result object to a block. The `result` object has a method `#succeeded?` that returns `true` if the message was successfully published, otherwise `false`. In the latter case, there is a method `#error` that returns the error.
 
 #### Example
 ```ruby
-PubsubClient.publish(message, 'some-topic') do |result|
+@client.publish(message, 'some-topic') do |result|
   if result.succeeded?
     puts 'yay!'
   else
@@ -55,7 +57,7 @@ Optionally, a client can choose to handle exceptions raised by the subscriber. I
 
 #### Example
 ```ruby
-subscriber = PubsubClient.subscriber('some-subscription')
+subscriber = @client.subscriber('some-subscription')
 
 subscriber.listener(concurrency: 4, auto_ack: false) do |data, received_message|
   # Most clients will only need the first yielded arg.
