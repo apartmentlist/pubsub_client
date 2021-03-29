@@ -13,8 +13,6 @@ class PubsubClient
   InvalidTopicError = Class.new(Error)
   InvalidSubscriptionError = Class.new(Error)
 
-  attr_reader :stubbed, :publisher_factory, :subscriber_factory
-
   def stub!
     raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory || @subscriber_factory
 
@@ -39,6 +37,8 @@ class PubsubClient
   end
 
   private
+
+  attr_reader :stubbed, :publisher_factory, :subscriber_factory
 
   def ensure_credentials!
     return if defined?(stubbed) && stubbed
