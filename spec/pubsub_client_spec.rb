@@ -1,58 +1,63 @@
 # frozen_string_literal: true
 
 RSpec.describe PubsubClient do
+
+  before(:all) do
+    @client = PubsubClient.new
+  end
+
   describe '.stub!' do
     before(:all) do
-      described_class.stub!
+      @client.stub!
     end
 
     after(:all) do
-      described_class.instance_variable_set(:@stubbed, nil)
+      @client.instance_variable_set(:@stubbed, nil)
     end
 
     context 'it sets the null factories' do
       it 'sets a NullPublisherFactory as the publisher factory' do
-        expect(described_class.instance_variable_get(:@publisher_factory)).to be_a(PubsubClient::NullPublisherFactory)
+        expect(@client.instance_variable_get(:@publisher_factory)).to be_a(PubsubClient::NullPublisherFactory)
       end
 
       it 'sets a NullSubscriberFactory as the subscriber factory' do
-        expect(described_class.instance_variable_get(:@subscriber_factory)).to be_a(PubsubClient::NullSubscriberFactory)
+        expect(@client.instance_variable_get(:@subscriber_factory)).to be_a(PubsubClient::NullSubscriberFactory)
       end
     end
 
     context 'when the publisher factory has already been configured' do
       before do
-        described_class.instance_variable_set(:@publisher_factory, 'some-factory')
+        @client.instance_variable_set(:@publisher_factory, 'some-factory')
       end
 
       it 'raises an error' do
         expect do
-          described_class.stub!
+          @client.stub!
         end.to raise_error(PubsubClient::ConfigurationError, 'PubsubClient is already configured')
       end
     end
 
     context 'when the subscriber factory has already been configured' do
       before do
-        described_class.instance_variable_set(:@subscriber_factory, 'some-factory')
+        @client.instance_variable_set(:@subscriber_factory, 'some-factory')
       end
 
       it 'raises an error' do
         expect do
-          described_class.stub!
+          @client.stub!
         end.to raise_error(PubsubClient::ConfigurationError, 'PubsubClient is already configured')
       end
     end
 
     it 'does not require credentials for publishing' do
       expect do
-        described_class.publish('foo', 'the-topic') { }
+        @client.publish('foo', 'the-topic') {}
       end.to_not raise_error
     end
 
     it 'does not require credentials for getting a handle to a subscriber' do
       expect do
-        described_class.subscriber('foo')
+        @client.subscriber('foo')
       end.to_not raise_error
     end
   end
@@ -62,15 +67,15 @@ RSpec.describe PubsubClient do
 
     before do
       factory = instance_double(PubsubClient::PublisherFactory, build: publisher)
-      described_class.instance_variable_set(:@publisher_factory, factory)
+      @client.instance_variable_set(:@publisher_factory, factory)
     end
 
     after do
-      described_class.instance_variable_set(:@publisher_factory, nil)
+      @client.instance_variable_set(:@publisher_factory, nil)
     end
 
     it 'calls publish on the publisher' do
-      described_class.publish('foo', 'the-topic')
+      @client.publish('foo', 'the-topic')
       expect(publisher).to have_received(:publish)
         .with('foo', {})
     end
@@ -87,7 +92,7 @@ RSpec.describe PubsubClient do
 
       it 'raises an error' do
         expect do
-          described_class.publish('foo', 'the-topic')
+          @client.publish('foo', 'the-topic')
         end.to raise_error(PubsubClient::CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set')
       end
     end
@@ -98,16 +103,16 @@ RSpec.describe PubsubClient do
 
     before do
       factory = instance_double(PubsubClient::SubscriberFactory, build: subscriber)
-      described_class.instance_variable_set(:@subscriber_factory, factory)
+      @client.instance_variable_set(:@subscriber_factory, factory)
     end
 
     after do
-      described_class.instance_variable_set(:@subscriber_factory, nil)
+      @client.instance_variable_set(:@subscriber_factory, nil)
     end
 
     it 'it returns the subscriber' do
-      described_class.subscriber('foo')
-      expect(described_class.subscriber('foo')).to eq(subscriber)
+      @client.subscriber('foo')
+      expect(@client.subscriber('foo')).to eq(subscriber)
     end
 
     context 'when no credentials are set' do
@@ -122,7 +127,7 @@ RSpec.describe PubsubClient do
 
       it 'raises an error' do
         expect do
-          described_class.subscriber('foo')
+          @client.subscriber('foo')
         end.to raise_error(PubsubClient::CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set')
       end
     end

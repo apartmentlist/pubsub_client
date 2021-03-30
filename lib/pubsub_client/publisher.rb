@@ -2,7 +2,7 @@
 
 require 'google/cloud/pubsub'
 
-module PubsubClient
+class PubsubClient
   class Publisher
     # @param topic [Google::Cloud::PubSub::Topic]
     def initialize(topic)

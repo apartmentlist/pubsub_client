@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PubsubClient
+class PubsubClient
   RSpec.describe NullPublisher do
     subject { described_class.new }
 
