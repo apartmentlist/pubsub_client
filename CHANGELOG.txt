@@ -1,3 +1,8 @@
+Version 2.0.0 2021-03-30
+------------------------
+172dc19 Add support for multiple clients
+3525193 Update subscriber example to include name of subscription instead of …
+
 Version 1.5.0 2020-11-05
 ------------------------
 6cab366 Do not require GAC when stubbed
