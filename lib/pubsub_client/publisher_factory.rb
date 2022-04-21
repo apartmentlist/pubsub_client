@@ -12,7 +12,7 @@ class PubsubClient
 
     # @param topic_name [String]
     # @return [Publisher]
-    def build(topic_name)
+    def build(topic_name, timeout = nil)
       # GRPC fails when attempting to use a connection created in a process that gets
       # forked with the message
       #
@@ -32,7 +32,8 @@ class PubsubClient
         # know that one will have built the publisher before the second is able to enter.
         # If we detect that case, then bail out so as to not rebuild the publisher.
         unless publishers[topic_name]&.pid == current_pid
-          publishers[topic_name] = Memo.new(build_publisher(topic_name), Process.pid)
+          publisher = timeout.nil? ? build_publisher(topic_name) : build_synchronous(topic_name, timeout)
+          publishers[topic_name] = Memo.new(publisher, Process.pid)
         end
       end
 
@@ -60,6 +61,14 @@ class PubsubClient
       at_exit { publisher.flush }
 
       publisher
+    end
+
+    def build_synchronous(topic_name, publish_timeout)
+      pubsub = Google::Cloud::PubSub.new(timeout: publish_timeout)
+      topic = pubsub.topic(topic_name)
+      raise InvalidTopicError, "The topic #{topic_name} does not exist" unless topic
+
+      Publisher.new(topic)
     end
   end
 end

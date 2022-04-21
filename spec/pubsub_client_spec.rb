@@ -15,6 +15,33 @@ RSpec.describe PubsubClient do
       @client.instance_variable_set(:@stubbed, nil)
     end
 
+    context 'config' do
+      it 'default sets publish_timeout to nil' do
+        expect(@client.config.publish_timeout).to be_nil
+      end
+
+      context 'when config is set' do
+        let(:publish_timeout) { 5 }
+
+        before do
+          @original_publish_timeout = @client.config.publish_timeout
+          @client.configure do |c|
+            c.publish_timeout = publish_timeout
+          end
+        end
+
+        after do
+          @client.configure do |c|
+            c.publish_timeout = @original_publish_timeout
+          end
+        end
+
+        it 'sets the configured value' do
+          expect(@client.config.publish_timeout).to eq(publish_timeout)
+        end
+      end
+    end
+
     context 'it sets the null factories' do
       it 'sets a NullPublisherFactory as the publisher factory' do
         expect(@client.instance_variable_get(:@publisher_factory)).to be_a(PubsubClient::NullPublisherFactory)
