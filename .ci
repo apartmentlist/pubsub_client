@@ -127,7 +127,7 @@ spec:
       parallel {
         stage("to Github packages") {
           steps {
-            publishRubyGemToGHP("ruby")
+            publishRubyGemToGHP("ruby30")
           }
         } // stage - to Github packages
       } // parallel
