@@ -136,10 +136,13 @@ spec:
 
   post {
     success {
-      slackSuccess()
-    }
+      success('alist-staging')
+    } // success
+    aborted {
+      aborted('alist-staging')
+    } // aborted
     failure {
-      slackFailure()
-    }
+      failure('alist-staging')
+    } // failure
   } // post
 } // pipeline
