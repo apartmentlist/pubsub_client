@@ -13,6 +13,18 @@ class PubsubClient
   InvalidTopicError = Class.new(Error)
   InvalidSubscriptionError = Class.new(Error)
 
+  class Config
+    attr_accessor :publish_timeout
+  end
+
+  def config
+    @config ||= Config.new
+  end
+
+  def configure
+    yield config
+  end
+
   def stub!
     raise ConfigurationError, 'PubsubClient is already configured' if @publisher_factory || @subscriber_factory
 
@@ -34,6 +46,15 @@ class PubsubClient
 
     @publisher_factory ||= PublisherFactory.new
     @publisher_factory.build(topic).publish(message, attributes, &block)
+  end
+
+  def synchronous_publish(message, topic, attributes = {}, &block)
+    ensure_credentials!
+
+    @publisher_factory ||= PublisherFactory.new
+    @publisher_factory
+      .build(topic, config.publish_timeout)
+      .synchronous_publish(message, attributes, &block)
   end
 
   private

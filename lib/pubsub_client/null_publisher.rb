@@ -14,5 +14,9 @@ class PubsubClient
     def publish(*, &block)
       yield NullResult.new
     end
+
+    def synchronous_publish(*, &block)
+      # no-op
+    end
   end
 end

@@ -118,5 +118,19 @@ class PubsubClient
           .once
       end
     end
+
+    context 'synchronous publisher' do
+      before do
+        allow(Google::Cloud::PubSub)
+          .to receive(:new)
+          .and_return(pubsub)
+      end
+
+      it 'builds the synchronous publisher' do
+        factory.build('the-topic', 5)
+        expect(Google::Cloud::Pubsub).to have_received(:new)
+          .with(timeout: 5)
+      end
+    end
   end
 end
