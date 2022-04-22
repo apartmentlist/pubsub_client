@@ -1,10 +1,15 @@
+#!/usr/bin/env groovy
+
+// https://github.com/apartmentlist/ci-shared-library
+@Library("ci-shared-library")_
+
 properties([
   buildDiscarder(
     logRotator(
-      artifactDaysToKeepStr: '',
-      artifactNumToKeepStr: '',
-      daysToKeepStr: '30',
-      numToKeepStr: '100'
+      artifactDaysToKeepStr: "",
+      artifactNumToKeepStr: "",
+      daysToKeepStr: "30",
+      numToKeepStr: "10"
     )
   )
 ])
@@ -12,122 +17,132 @@ properties([
 def k8s_label = "${UUID.randomUUID().toString()}"
 
 pipeline {
-
   environment {
-    APP_NAME = 'pubsub_client'
-    CLOUDSDK_CORE_DISABLE_PROMPTS = '1'
-    GIT_COMMIT_SHORT = sh(script: "printf \$(git rev-parse --short ${GIT_COMMIT})", returnStdout: true)
-    APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE = "true"
+    APP_NAME = "pubsub_client"
+    CI = "true"
+    GIT_COMMIT_SHORT = sh(script: "printf \$(git rev-parse --short $GIT_COMMIT)", returnStdout: true)
+    GIT_MESSAGE = sh(script: "git log --format=%B -n 1 $GIT_COMMIT", returnStdout: true).trim()
+    GIT_USER = sh(script: "git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
+    GITHUB_URL = "https://github.com"
     LANG = "en_US.UTF-8"
     LANGUAGE = "en_US:en"
     LC_ALL = "en_US.UTF-8"
-  }
+    SLACK_CHANNEL = "#releases"
+  } // environment
 
   agent {
     kubernetes {
       label k8s_label
-      defaultContainer 'jnlp'
+      defaultContainer "jnlp"
       yaml """
 apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: gcc
-    image: gcc:9.3
-    command:
-    - "tail"
-    - "-f"
-    - "/dev/null"
-    imagePullPolicy: Always
-    resources:
-      requests:
-        memory: "512Mi"
-        cpu: "500m"
-      limits:
-      requests:
-        memory: "512Mi"
-        cpu: "500m"
-  - name: ruby25
-    image: gcr.io/al-development/ruby:2.5.8
-    imagePullPolicy: Always
-    resources:
-      requests:
-        memory: "2048Mi"
-        cpu: "2"
-      requests:
-        memory: "2048Mi"
-        cpu: "2"
-    command:
-    - "tail"
-    - "-f"
-    - "/dev/null"
-  - name: ruby26
-    image: gcr.io/al-development/ruby:2.6.6
-    imagePullPolicy: Always
-    resources:
-      requests:
-        memory: "2048Mi"
-        cpu: "2"
-      requests:
-        memory: "2048Mi"
-        cpu: "2"
-    command:
-    - "tail"
-    - "-f"
-    - "/dev/null"
   - name: ruby27
-    image: gcr.io/al-development/ruby:2.7.1
+    image: gcr.io/alist-development/ruby:2.7.5
     imagePullPolicy: Always
     resources:
       requests:
-        memory: "2048Mi"
-        cpu: "2"
+        memory: "1024Mi"
+        cpu: "1"
       requests:
-        memory: "2048Mi"
-        cpu: "2"
+        memory: "1024Mi"
+        cpu: "1"
+    command:
+    - "tail"
+    - "-f"
+    - "/dev/null"
+  - name: ruby30
+    image: gcr.io/alist-development/ruby:3.0.3
+    imagePullPolicy: Always
+    resources:
+      requests:
+        memory: "1024Mi"
+        cpu: "1"
+      requests:
+        memory: "1024Mi"
+        cpu: "1"
     command:
     - "tail"
     - "-f"
     - "/dev/null"
 """
-    }
-  }
+    } // kubernetes
+  } // agent
 
   options {
     timestamps()
-    timeout(time: 15, unit: 'MINUTES')
-  }
+    timeout(
+      time: 10,
+      unit: "MINUTES"
+    )
+    ansiColor("xterm")
+  } // options
 
   stages {
     stage('Unit Tests') {
       parallel {
-        stage('PubsubClient gem ruby 2.5') {
-          steps {
-            container('ruby25') {
-              sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
-              sh script: 'bundle exec rake', label: 'test'
-            } //container
-          } //steps
-        }//stage
-
-        stage('PubsubClient gem ruby 2.6') {
-          steps {
-            container('ruby26') {
-              sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
-              sh script: 'bundle exec rake', label: 'test'
-            } //container
-          } //steps
-        }//stage
-
-        stage('PubsubClient gem ruby 2.7') {
+        stage('Ruby 2.7') {
           steps {
             container('ruby27') {
-              sh script: 'gem install bundler:2.1.4 && bundle install', label: 'install'
+              sh script: 'gem install bundler:2.3.12 && bundle install', label: 'install'
+              sh script: 'bundle exec rake', label: 'test'
+            } //container
+          } //steps
+        }//stage
+
+        stage('Ruby 3.0') {
+          steps {
+            container('ruby30') {
+              sh script: 'gem install bundler:2.3.12 && bundle install', label: 'install'
               sh script: 'bundle exec rake', label: 'test'
             } //container
           } //steps
         }//stage
       } //parallel
     } //stage
-  }
-}
+
+    stage("Preparation") {
+      parallel {
+        stage("Slack") {
+          steps {
+            slackPreparation()
+          }
+        } // stage - Slack
+        stage("Build Description") {
+          steps {
+            buildDescription()
+          }
+        } // stage - Build Description
+      } // parallel
+    } // stage - Preparation
+    stage("Publish") {
+      when {
+        allOf {
+          branch "main"
+          not { changeRequest() }
+        }
+      } // when
+      parallel {
+        stage("to Github packages") {
+          steps {
+            publishRubyGemToGHP("ruby")
+          }
+        } // stage - to Github packages
+      } // parallel
+    } // stage - Publish
+  } // stages
+
+  post {
+    success {
+      success('alist-staging')
+    } // success
+    aborted {
+      aborted('alist-staging')
+    } // aborted
+    failure {
+      failure('alist-staging')
+    } // failure
+  } // post
+} // pipeline
