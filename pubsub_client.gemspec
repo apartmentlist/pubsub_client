@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'google-cloud-pubsub', '~> 2.0'
+  spec.add_runtime_dependency 'google-cloud-pubsub', '~> 2.15.4'
   spec.add_runtime_dependency 'activesupport'
 
   spec.add_development_dependency 'rake', '~> 13.0'
