@@ -46,7 +46,7 @@ spec:
       requests:
         memory: "1024Mi"
         cpu: "1"
-      requests:
+      limits:
         memory: "1024Mi"
         cpu: "1"
     command:
@@ -60,7 +60,7 @@ spec:
       requests:
         memory: "1024Mi"
         cpu: "1"
-      requests:
+      limits:
         memory: "1024Mi"
         cpu: "1"
     command:

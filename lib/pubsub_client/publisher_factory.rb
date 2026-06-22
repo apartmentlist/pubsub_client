@@ -69,8 +69,6 @@ class PubsubClient
       Publisher.new(pubsub.publisher(topic_name))
     end
 
-    # In google-cloud-pubsub v3, `pubsub.publisher` returns a reference without
-    # performing a server lookup, so we verify existence via the admin client.
     def ensure_topic_exists!(pubsub, topic_name)
       pubsub.topic_admin.get_topic(topic: pubsub.topic_path(topic_name))
     rescue Google::Cloud::NotFoundError
