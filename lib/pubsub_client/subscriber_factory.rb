@@ -22,9 +22,18 @@ class PubsubClient
 
     def build_subscriber(subscription_name)
       pubsub = Google::Cloud::PubSub.new
-      subscription = pubsub.subscription(subscription_name)
-      raise InvalidSubscriptionError, "The subscription #{subscription_name} does not exist" unless subscription
-      Subscriber.new(subscription)
+      ensure_subscription_exists!(pubsub, subscription_name)
+      Subscriber.new(pubsub.subscriber(subscription_name))
+    end
+
+    # In google-cloud-pubsub v3, `pubsub.subscriber` returns a reference without
+    # performing a server lookup, so we verify existence via the admin client.
+    def ensure_subscription_exists!(pubsub, subscription_name)
+      pubsub.subscription_admin.get_subscription(
+        subscription: pubsub.subscription_path(subscription_name)
+      )
+    rescue Google::Cloud::NotFoundError
+      raise InvalidSubscriptionError, "The subscription #{subscription_name} does not exist"
     end
   end
 end

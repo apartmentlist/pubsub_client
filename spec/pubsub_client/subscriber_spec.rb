@@ -2,10 +2,10 @@
 
 class PubsubClient
   RSpec.describe Subscriber do
-    subject(:subscriber) { described_class.new(subscription) }
+    subject(:subscriber) { described_class.new(gcloud_subscriber) }
 
-    let(:subscription) { instance_double(Google::Cloud::PubSub::Subscription) }
-    let(:listener) { instance_double(Google::Cloud::PubSub::Subscriber) }
+    let(:gcloud_subscriber) { instance_double(Google::Cloud::PubSub::Subscriber) }
+    let(:listener) { instance_double(Google::Cloud::PubSub::MessageListener) }
     let(:pubsub_message) {
       instance_double(Google::Cloud::PubSub::ReceivedMessage, data: 'the-message', acknowledge!: nil)
     }
@@ -14,7 +14,7 @@ class PubsubClient
       # This must be stubbed out so that the process that runs the specs doesn't
       # actually sleep.
       allow(subscriber).to receive(:sleep)
-      allow(subscription).to receive(:listen)
+      allow(gcloud_subscriber).to receive(:listen)
         .with({ threads: { callback: 8 } })
         .and_yield(pubsub_message)
         .and_return(listener)

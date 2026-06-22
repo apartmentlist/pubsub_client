@@ -5,7 +5,8 @@ class PubsubClient
     subject(:factory) { described_class.new }
 
     let(:pubsub) { instance_double(Google::Cloud::PubSub::Project) }
-    let(:topic) { instance_double(Google::Cloud::PubSub::Topic) }
+    let(:topic_admin) { double('topic_admin') }
+    let(:gcloud_publisher) { instance_double(Google::Cloud::PubSub::Publisher) }
     let(:publisher) do
       # The factory ensures the #flush method of publisher is called on exit, so
       # we cannot use doubles. Thus, created a lightweight object that will respond
@@ -17,10 +18,13 @@ class PubsubClient
       allow(Google::Cloud::PubSub)
         .to receive(:new)
         .and_return(pubsub)
+      allow(pubsub).to receive(:topic_admin).and_return(topic_admin)
+      allow(pubsub).to receive(:topic_path) { |name| "projects/test/topics/#{name}" }
+      allow(topic_admin).to receive(:get_topic)
       allow(pubsub)
-        .to receive(:topic)
+        .to receive(:publisher)
         .with('the-topic')
-        .and_return(topic)
+        .and_return(gcloud_publisher)
       allow(Publisher)
         .to receive(:new)
         .and_return(publisher)
@@ -42,14 +46,14 @@ class PubsubClient
           factory.build('the-topic')
         end
 
-        expect(pubsub).to have_received(:topic).twice
+        expect(pubsub).to have_received(:publisher).twice
       end
     end
 
     it 'builds the publisher' do
       factory.build('the-topic')
       expect(Publisher).to have_received(:new)
-        .with(topic)
+        .with(gcloud_publisher)
     end
 
     it 'returns the publisher' do
@@ -58,10 +62,10 @@ class PubsubClient
 
     context 'when the topic does not exist' do
       before do
-        allow(pubsub)
-          .to receive(:topic)
-          .with('invalid-topic')
-          .and_return(nil)
+        allow(topic_admin)
+          .to receive(:get_topic)
+          .with(topic: 'projects/test/topics/invalid-topic')
+          .and_raise(Google::Cloud::NotFoundError.new('not found'))
       end
 
       it 'raises an error' do
@@ -72,8 +76,8 @@ class PubsubClient
     end
 
     context 'multiple topics' do
-      let(:topic1) { instance_double(Google::Cloud::PubSub::Topic, name: '/projects/project-identifier/topics/topic-1') }
-      let(:topic2) { instance_double(Google::Cloud::PubSub::Topic, name: '/projects/project-identifier/topics/topic-2') }
+      let(:gcloud_publisher1) { instance_double(Google::Cloud::PubSub::Publisher, name: '/projects/project-identifier/topics/topic-1') }
+      let(:gcloud_publisher2) { instance_double(Google::Cloud::PubSub::Publisher, name: '/projects/project-identifier/topics/topic-2') }
 
       # We need a way to distinguish between these objects and setting an `id`
       # attribute will allow us to do that.
@@ -82,20 +86,20 @@ class PubsubClient
 
       before do
         allow(pubsub)
-          .to receive(:topic)
+          .to receive(:publisher)
           .with('topic-1')
-          .and_return(topic1)
+          .and_return(gcloud_publisher1)
         allow(pubsub)
-          .to receive(:topic)
+          .to receive(:publisher)
           .with('topic-2')
-          .and_return(topic2)
+          .and_return(gcloud_publisher2)
         allow(Publisher)
           .to receive(:new)
-          .with(topic1)
+          .with(gcloud_publisher1)
           .and_return(publisher1)
         allow(Publisher)
           .to receive(:new)
-          .with(topic2)
+          .with(gcloud_publisher2)
           .and_return(publisher2)
       end
 
@@ -110,10 +114,10 @@ class PubsubClient
           factory.build('topic-2')
         end
 
-        expect(pubsub).to have_received(:topic)
+        expect(pubsub).to have_received(:publisher)
           .with('topic-1')
           .once
-        expect(pubsub).to have_received(:topic)
+        expect(pubsub).to have_received(:publisher)
           .with('topic-2')
           .once
       end
@@ -128,7 +132,7 @@ class PubsubClient
 
       it 'builds the synchronous publisher' do
         factory.build('the-topic', 5)
-        expect(Google::Cloud::Pubsub).to have_received(:new)
+        expect(Google::Cloud::PubSub).to have_received(:new)
           .with(timeout: 5)
       end
     end

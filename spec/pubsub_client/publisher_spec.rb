@@ -2,26 +2,26 @@
 
 class PubsubClient
   RSpec.describe Publisher do
-    subject(:publisher) { described_class.new(topic) }
+    subject(:publisher) { described_class.new(gcloud_publisher) }
 
-    let(:topic) { instance_double(Google::Cloud::PubSub::Topic) }
+    let(:gcloud_publisher) { instance_double(Google::Cloud::PubSub::Publisher) }
 
     describe 'async publishing' do
       before do
-        allow(topic)
+        allow(gcloud_publisher)
           .to receive(:publish_async)
           .and_yield('the-result')
       end
 
       it 'publishes the message' do
         subject.publish('foo') { |_| }
-        expect(topic).to have_received(:publish_async)
+        expect(gcloud_publisher).to have_received(:publish_async)
           .with('foo', {})
       end
 
       it 'supports attributes' do
         subject.publish('foo', bar: 'baz') { |_| }
-        expect(topic).to have_received(:publish_async)
+        expect(gcloud_publisher).to have_received(:publish_async)
           .with('foo', {bar: 'baz'})
       end
 
@@ -36,18 +36,18 @@ class PubsubClient
 
     describe 'synchronous publishing' do
       before do
-        allow(topic).to receive(:publish)
+        allow(gcloud_publisher).to receive(:publish)
       end
 
       it 'publishes the message' do
         subject.synchronous_publish('foo')
-        expect(topic).to have_received(:publish)
+        expect(gcloud_publisher).to have_received(:publish)
           .with('foo', {})
       end
 
       it 'supports attributes' do
         subject.synchronous_publish('foo', bar: 'baz')
-        expect(topic).to have_received(:publish)
+        expect(gcloud_publisher).to have_received(:publish)
           .with('foo', {bar: 'baz'})
       end
     end # describe

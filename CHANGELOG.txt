@@ -1,3 +1,11 @@
+Version 3.0.0 2026-06-22
+------------------------
+Upgrade to google-cloud-pubsub ~> 3.0
+- Topic/Subscription data-plane classes renamed to Publisher/Subscriber
+  (pubsub.topic -> pubsub.publisher, pubsub.subscription -> pubsub.subscriber)
+- Topic/subscription existence now verified via the admin clients
+  (topic_admin.get_topic / subscription_admin.get_subscription)
+
 Version 2.0.0 2021-03-30
 ------------------------
 172dc19 Add support for multiple clients
