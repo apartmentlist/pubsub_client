@@ -39,22 +39,8 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: ruby27
-    image: gcr.io/alist-development/ruby:2.7.5
-    imagePullPolicy: Always
-    resources:
-      requests:
-        memory: "1024Mi"
-        cpu: "1"
-      limits:
-        memory: "1024Mi"
-        cpu: "1"
-    command:
-    - "tail"
-    - "-f"
-    - "/dev/null"
-  - name: ruby30
-    image: gcr.io/alist-development/ruby:3.0.3
+  - name: ruby32
+    image: gcr.io/alist-development/ruby:3.2.5
     imagePullPolicy: Always
     resources:
       requests:
@@ -82,25 +68,12 @@ spec:
 
   stages {
     stage('Unit Tests') {
-      parallel {
-        stage('Ruby 2.7') {
-          steps {
-            container('ruby27') {
-              sh script: 'gem install bundler:2.3.12 && bundle install', label: 'install'
-              sh script: 'bundle exec rake', label: 'test'
-            } //container
-          } //steps
-        }//stage
-
-        stage('Ruby 3.0') {
-          steps {
-            container('ruby30') {
-              sh script: 'gem install bundler:2.3.12 && bundle install', label: 'install'
-              sh script: 'bundle exec rake', label: 'test'
-            } //container
-          } //steps
-        }//stage
-      } //parallel
+      steps {
+        container('ruby32') {
+          sh script: 'gem install bundler:2.3.12 && bundle install', label: 'install'
+          sh script: 'bundle exec rake', label: 'test'
+        } //container
+      } //steps
     } //stage
 
     stage("Preparation") {
@@ -127,7 +100,7 @@ spec:
       parallel {
         stage("to Github packages") {
           steps {
-            publishRubyGemToGHP("ruby30")
+            publishRubyGemToGHP("ruby32")
           }
         } // stage - to Github packages
       } // parallel
