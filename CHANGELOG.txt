@@ -1,3 +1,10 @@
+Version 3.0.0 2026-06-22
+------------------------
+Require Ruby ~> 3.1
+Upgrade to google-cloud-pubsub ~> 3.0
+- Topic/Subscription data-plane classes renamed to Publisher/Subscriber
+- Topic/subscription existence now verified via the admin clients
+
 Version 2.0.0 2021-03-30
 ------------------------
 172dc19 Add support for multiple clients

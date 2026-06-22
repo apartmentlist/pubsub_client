@@ -6,19 +6,19 @@ class PubsubClient
   class Subscriber
     DEFAULT_CONCURRENCY = 8
 
-    # @param subscription [Google::Cloud::PubSub::Subscription]
-    def initialize(subscription)
-      @subscription = subscription
+    # @param subscriber [Google::Cloud::PubSub::Subscriber]
+    def initialize(subscriber)
+      @subscriber = subscriber
     end
 
     # @param concurrency [Integer] - The number of threads to run the subscriber with. Default is 8.
     # @param auto_ack [Boolean] - Flag to acknowledge the Pub/Sub message. A message must be acked
     # to remove it from the topic. Default is `true`.
     #
-    # @return [Google::Cloud::PubSub::Subscriber]
+    # @return [Google::Cloud::PubSub::MessageListener]
     def listener(concurrency: DEFAULT_CONCURRENCY, auto_ack: true, &block)
       @listener ||= begin
-        @subscription.listen(threads: { callback: concurrency }) do |received_message|
+        @subscriber.listen(threads: { callback: concurrency }) do |received_message|
           yield received_message.data, received_message
           received_message.acknowledge! if auto_ack
         end

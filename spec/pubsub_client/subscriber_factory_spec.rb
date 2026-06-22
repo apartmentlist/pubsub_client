@@ -5,17 +5,21 @@ class PubsubClient
     subject(:factory) { described_class.new }
 
     let(:pubsub) { instance_double(Google::Cloud::PubSub::Project) }
-    let(:subscription) { instance_double(Google::Cloud::PubSub::Subscription) }
+    let(:subscription_admin) { double('subscription_admin') }
+    let(:gcloud_subscriber) { instance_double(Google::Cloud::PubSub::Subscriber) }
     let(:subscriber) { instance_double(Subscriber) }
 
     before do
       allow(Google::Cloud::PubSub)
         .to receive(:new)
         .and_return(pubsub)
+      allow(pubsub).to receive(:subscription_admin).and_return(subscription_admin)
+      allow(pubsub).to receive(:subscription_path) { |name| "projects/test/subscriptions/#{name}" }
+      allow(subscription_admin).to receive(:get_subscription)
       allow(pubsub)
-        .to receive(:subscription)
+        .to receive(:subscriber)
         .with('the-subscription')
-        .and_return(subscription)
+        .and_return(gcloud_subscriber)
       allow(Subscriber)
         .to receive(:new)
         .and_return(subscriber)
@@ -24,7 +28,7 @@ class PubsubClient
     it 'builds the subscriber' do
       factory.build('the-subscription')
       expect(Subscriber).to have_received(:new)
-        .with(subscription)
+        .with(gcloud_subscriber)
     end
 
     it 'returns the subscriber' do
@@ -33,10 +37,10 @@ class PubsubClient
 
     context 'when the subscription does not exist' do
       before do
-        allow(pubsub)
-          .to receive(:subscription)
-          .with('invalid-subscription')
-          .and_return(nil)
+        allow(subscription_admin)
+          .to receive(:get_subscription)
+          .with(subscription: 'projects/test/subscriptions/invalid-subscription')
+          .and_raise(Google::Cloud::NotFoundError.new('not found'))
       end
 
       it 'raises an error' do

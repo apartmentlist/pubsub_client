@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Google Pub/Sub Wrapper}
   spec.homepage      = 'https://github.com/apartmentlist/pubsub_client'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 3.1.0')
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   end
   spec.require_paths = ['lib']
 
-  spec.add_runtime_dependency 'google-cloud-pubsub', '~> 2.0'
+  spec.add_runtime_dependency 'google-cloud-pubsub', '~> 3.0'
   spec.add_runtime_dependency 'activesupport'
 
   spec.add_development_dependency 'rake', '~> 13.0'

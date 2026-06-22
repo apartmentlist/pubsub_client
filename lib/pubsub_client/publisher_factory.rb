@@ -54,9 +54,8 @@ class PubsubClient
 
     def build_publisher(topic_name)
       pubsub = Google::Cloud::PubSub.new
-      topic = pubsub.topic(topic_name)
-      raise InvalidTopicError, "The topic #{topic_name} does not exist" unless topic
-      publisher = Publisher.new(topic)
+      ensure_topic_exists!(pubsub, topic_name)
+      publisher = Publisher.new(pubsub.publisher(topic_name))
 
       at_exit { publisher.flush }
 
@@ -65,10 +64,15 @@ class PubsubClient
 
     def build_synchronous(topic_name, publish_timeout)
       pubsub = Google::Cloud::PubSub.new(timeout: publish_timeout)
-      topic = pubsub.topic(topic_name)
-      raise InvalidTopicError, "The topic #{topic_name} does not exist" unless topic
+      ensure_topic_exists!(pubsub, topic_name)
 
-      Publisher.new(topic)
+      Publisher.new(pubsub.publisher(topic_name))
+    end
+
+    def ensure_topic_exists!(pubsub, topic_name)
+      pubsub.topic_admin.get_topic(topic: pubsub.topic_path(topic_name))
+    rescue Google::Cloud::NotFoundError
+      raise InvalidTopicError, "The topic #{topic_name} does not exist"
     end
   end
 end
