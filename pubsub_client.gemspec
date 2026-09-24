@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'google-cloud-pubsub', '~> 3.0'
+  spec.add_runtime_dependency 'googleauth', '~> 1.12'
   spec.add_runtime_dependency 'activesupport'
 
   spec.add_development_dependency 'rake', '~> 13.0'
