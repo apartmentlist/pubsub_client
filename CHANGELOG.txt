@@ -1,3 +1,9 @@
+Version 3.1.0 2026-09-24
+------------------------
+Support Workload Identity: credentials check now resolves via
+Google::Auth.get_application_default (env var, gcloud creds, or
+GCE/GKE metadata server) instead of requiring GOOGLE_APPLICATION_CREDENTIALS
+
 Version 3.0.0 2026-06-22
 ------------------------
 Require Ruby ~> 3.1
