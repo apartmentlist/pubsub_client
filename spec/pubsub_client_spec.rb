@@ -107,20 +107,15 @@ RSpec.describe PubsubClient do
         .with('foo', {})
     end
 
-    context 'when no credentials are set' do
+    context 'when no credentials are resolvable' do
       before do
-        @gac = ENV['GOOGLE_APPLICATION_CREDENTIALS']
-        ENV['GOOGLE_APPLICATION_CREDENTIALS'] = nil
-      end
-
-      after do
-        ENV['GOOGLE_APPLICATION_CREDENTIALS'] = @gac
+        allow(Google::Auth).to receive(:get_application_default).and_raise(RuntimeError, 'no credentials found')
       end
 
       it 'raises an error' do
         expect do
           @client.publish('foo', 'the-topic')
-        end.to raise_error(PubsubClient::CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set')
+        end.to raise_error(PubsubClient::CredentialsError, /Unable to resolve Google Cloud credentials/)
       end
     end
   end
@@ -142,20 +137,15 @@ RSpec.describe PubsubClient do
       expect(@client.subscriber('foo')).to eq(subscriber)
     end
 
-    context 'when no credentials are set' do
+    context 'when no credentials are resolvable' do
       before do
-        @gac = ENV['GOOGLE_APPLICATION_CREDENTIALS']
-        ENV['GOOGLE_APPLICATION_CREDENTIALS'] = nil
-      end
-
-      after do
-        ENV['GOOGLE_APPLICATION_CREDENTIALS'] = @gac
+        allow(Google::Auth).to receive(:get_application_default).and_raise(RuntimeError, 'no credentials found')
       end
 
       it 'raises an error' do
         expect do
           @client.subscriber('foo')
-        end.to raise_error(PubsubClient::CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set')
+        end.to raise_error(PubsubClient::CredentialsError, /Unable to resolve Google Cloud credentials/)
       end
     end
   end

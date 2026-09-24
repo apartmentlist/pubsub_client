@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'googleauth'
 require 'pubsub_client/version'
 require 'pubsub_client/null_publisher_factory'
 require 'pubsub_client/null_subscriber_factory'
@@ -64,8 +65,8 @@ class PubsubClient
   def ensure_credentials!
     return if defined?(stubbed) && stubbed
 
-    unless ENV['GOOGLE_APPLICATION_CREDENTIALS']
-      raise CredentialsError, 'GOOGLE_APPLICATION_CREDENTIALS must be set'
-    end
+    Google::Auth.get_application_default
+  rescue StandardError => e
+    raise CredentialsError, "Unable to resolve Google Cloud credentials: #{e.message}"
   end
 end
